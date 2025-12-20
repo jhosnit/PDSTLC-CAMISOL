@@ -1,7 +1,8 @@
+
+import Presentación.Ventanas.VentanaInicio;
+
 public class Main {
-    public static void main(String[] args) {
-        System.out.println("Hello world!!!");
-        System.out.println("Hello!!!");
-        System.out.println("Holi");
-    }
+  public static void main(String[] args) {
+    VentanaInicio ventanaInicio = VentanaInicio.obtenerVentana();
+  }
 }
