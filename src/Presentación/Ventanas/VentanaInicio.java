@@ -235,7 +235,7 @@ public class VentanaInicio extends JFrame {
       dispose();
       new VentanaPrincipal().setVisible(true);
     } else {
-      GestorAlertas.mostrarErrorLogin(this, "Usuario o contraseña incorrectas");
+      GestorAlertas.mostrarErrorLogin(this, "Usuario o contraseña incorrecto");
       textoUsuario.setText("");
       textoContraseña.setText("");
     }

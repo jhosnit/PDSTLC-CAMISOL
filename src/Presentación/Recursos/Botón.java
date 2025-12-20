@@ -12,8 +12,8 @@ public class Botón extends JButton {
 
   public Botón(String texto, Color colorFondo) {
     super(texto);
-    this.colorFondo = colorFondo;
-    this.colorHover = ajustarBrillo(colorFondo, 1.2f); // 20% más brillante
+    this.colorFondo = (colorFondo != null) ? colorFondo : new Color(55, 65, 81);
+    this.colorHover = ajustarBrillo(this.colorFondo, 1.2f); // 20% más brillante
 
     setForeground(Color.WHITE);
     setFocusPainted(false);
@@ -36,6 +36,28 @@ public class Botón extends JButton {
         repaint();
       }
     });
+  }
+
+  public static Botón crearBotónMenu(String texto, Color color) {
+    Botón botón = new Botón("  " + texto, color);
+    botón.setHorizontalAlignment(SwingConstants.LEFT);
+    botón.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+    botón.setPreferredSize(new Dimension(210, 42));
+    botón.setMaximumSize(new Dimension(210, 42));
+
+    botón.addMouseListener(new java.awt.event.MouseAdapter() {
+      Color colorOriginal = botón.getBackground();
+
+      public void mouseEntered(java.awt.event.MouseEvent evt) {
+        botón.setBackground(new Color(75, 85, 99));
+      }
+
+      public void mouseExited(java.awt.event.MouseEvent evt) {
+        botón.setBackground(colorOriginal);
+      }
+    });
+
+    return botón;
   }
 
   @Override

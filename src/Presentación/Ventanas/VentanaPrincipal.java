@@ -1,13 +1,11 @@
 package Presentación.Ventanas;
 
-import Presentación.Módulos.*;
 import Presentación.Recursos.Botón;
 import Presentación.Recursos.GestorAlertas;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -20,14 +18,14 @@ public class VentanaPrincipal extends JFrame {
   private JPanel panelDeContenido;
   private JPanel panelMenú;
 
-  private Botón btnInicio;
-  private Botón btnAdmin;
-  private Botón btnAuditoria;
-  private Botón btnClientes;
-  private Botón btnFacturacion;
-  private Botón btnProveedores;
-  private Botón btnTanqueros;
-  private Botón btnSalir;
+  private Botón botónInicio;
+  private Botón botónAdmin;
+  private Botón botónAuditoria;
+  private Botón botónClientes;
+  private Botón botónFacturacion;
+  private Botón botónProveedores;
+  private Botón botónTanqueros;
+  private Botón botónSalir;
 
   public VentanaPrincipal() {
     inicializarComponentes();
@@ -40,14 +38,12 @@ public class VentanaPrincipal extends JFrame {
     setTitle("Sistema de Transporte de Lácteos CAMISOL S.A.");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setExtendedState(JFrame.MAXIMIZED_BOTH);
+    setIconImage(new ImageIcon("src/Presentación/Recursos/Icono.png").getImage());
 
-    URL urlIcono = getClass().getResource("/Presentación/Recursos/Icono.png");
-    if(urlIcono != null) setIconImage(new ImageIcon(urlIcono).getImage());
-
-    // PANEL PRINCIPAL
     JPanel panelPrincipal = new JPanel(new BorderLayout());
     panelPrincipal.setBackground(new Color(18, 18, 18));
 
+    // Encabezado
     JPanel panelEncabezado = new JPanel(new BorderLayout()) {
       @Override
       protected void paintComponent(Graphics g) {
@@ -55,7 +51,7 @@ public class VentanaPrincipal extends JFrame {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Degradado horizontal
+        // Degradado
         GradientPaint gp = new GradientPaint(
           0, 0, new Color(234, 177, 0),
           getWidth(), 0, new Color(0, 22, 141));
@@ -63,55 +59,66 @@ public class VentanaPrincipal extends JFrame {
         g2d.fillRect(0, 0, getWidth(), getHeight());
       }
     };
+
+    // Panel encabezado
     panelEncabezado.setOpaque(false);
     panelEncabezado.setBorder(new EmptyBorder(15, 20, 15, 20));
     panelEncabezado.setPreferredSize(new Dimension(0, 80));
 
+    // Titulo
     JLabel etiquetaTítulo = new JLabel("CAMISOL S.A. - SISTEMA DE TRANSPORTE");
     etiquetaTítulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
     etiquetaTítulo.setForeground(Color.WHITE);
 
-
-    JPanel panelInformación = new JPanel(new GridLayout(2, 1));
+    // Información usuario y fecha
+    JPanel panelInformación = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
     panelInformación.setOpaque(false);
 
-    etiquetaUsuario = new JLabel("Usuario: Administrador");
+    JPanel cuadroUsuario = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 8));
+    cuadroUsuario.setBackground(new Color(255, 255, 255, 25));
+    cuadroUsuario.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 100), 1));
+    JLabel lblIconoUsuario = new JLabel("●");
+    lblIconoUsuario.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    lblIconoUsuario.setForeground(new Color(31, 234, 0));
+    etiquetaUsuario = new JLabel("Administrador");
     etiquetaUsuario.setFont(new Font("Segoe UI", Font.BOLD, 13));
     etiquetaUsuario.setForeground(Color.WHITE);
-    etiquetaUsuario.setHorizontalAlignment(SwingConstants.RIGHT);
+
+    cuadroUsuario.add(lblIconoUsuario);
+    cuadroUsuario.add(etiquetaUsuario);
 
     etiquetaFecha = new JLabel();
-    etiquetaFecha.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+    etiquetaFecha.setFont(new Font("Segoe UI", Font.BOLD, 14));
     etiquetaFecha.setForeground(new Color(255, 255, 255, 220));
     etiquetaFecha.setHorizontalAlignment(SwingConstants.RIGHT);
 
-    panelInformación.add(etiquetaUsuario);
+    panelInformación.add(cuadroUsuario);
     panelInformación.add(etiquetaFecha);
 
     panelEncabezado.add(etiquetaTítulo, BorderLayout.WEST);
     panelEncabezado.add(panelInformación, BorderLayout.EAST);
 
-    // CONTENEDOR CON MENÚ Y CONTENIDO
+    // Panel principal
     JPanel contenedorPrincipal = new JPanel(new BorderLayout());
     contenedorPrincipal.setBackground(new Color(18, 18, 18));
 
-    // MENÚ LATERAL MODERNO
+    // Panel de menú lateral
     panelMenú = crearMenuLateral();
 
-    // ÁREA DE CONTENIDO
+    // Panel de contenido
     JPanel areaContenido = new JPanel(new BorderLayout());
     areaContenido.setBackground(new Color(18, 18, 18));
 
-    // Breadcrumb / Título de sección
+    // Título de sección
     JPanel panelBreadcrumb = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 15));
     panelBreadcrumb.setBackground(new Color(18, 18, 18));
 
-    etiquetaTítuloSección = new JLabel("INICIO");
+    etiquetaTítuloSección = new JLabel();
     etiquetaTítuloSección.setFont(new Font("Segoe UI", Font.BOLD, 20));
     etiquetaTítuloSección.setForeground(new Color(229, 231, 235));
     panelBreadcrumb.add(etiquetaTítuloSección);
 
-    // Panel de contenido dinámico
+    // Panel de contenido
     panelDeContenido = new JPanel(new BorderLayout());
     panelDeContenido.setBackground(new Color(18, 18, 18));
     panelDeContenido.setBorder(new EmptyBorder(10, 20, 20, 20));
@@ -136,86 +143,63 @@ public class VentanaPrincipal extends JFrame {
     menu.setBorder(new EmptyBorder(20, 15, 20, 15));
     menu.setPreferredSize(new Dimension(240, 0));
 
-    // Sección: Principal
-    menu.add(crearEtiquetaSeccion("PRINCIPAL"));
-    btnInicio = crearBotónMenuModerno("Inicio", new Color(0, 22, 141));
-    btnClientes = crearBotónMenuModerno("Clientes", new Color(40, 167, 69));
-    btnTanqueros = crearBotónMenuModerno("Tanqueros", new Color(70, 128, 139));
-    btnProveedores = crearBotónMenuModerno("Proveedores", new Color(108, 117, 125));
-    btnFacturacion = crearBotónMenuModerno("Facturación", new Color(234, 177, 0));
-    menu.add(btnInicio);
-    menu.add(Box.createVerticalStrut(5));
-    menu.add(btnClientes);
-    menu.add(Box.createVerticalStrut(5));
-    menu.add(btnTanqueros);
-    menu.add(Box.createVerticalStrut(5));
-    menu.add(btnProveedores);
-    menu.add(Box.createVerticalStrut(5));
-    menu.add(btnFacturacion);
-    menu.add(Box.createVerticalStrut(5));
-
-    btnInicio.setAlignmentX(Component.CENTER_ALIGNMENT);
-    btnClientes.setAlignmentX(Component.CENTER_ALIGNMENT);
-    btnTanqueros.setAlignmentX(Component.CENTER_ALIGNMENT);
-    btnProveedores.setAlignmentX(Component.CENTER_ALIGNMENT);
-    btnFacturacion.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-    // Sistema
-    menu.add(crearEtiquetaSeccion("SISTEMA"));
-    btnAdmin = crearBotónMenuModerno("Administración", new Color(21, 128, 61));
-    btnAuditoria = crearBotónMenuModerno("Auditoría", new Color(168, 85, 247));
-
-    btnAdmin.setAlignmentX(Component.CENTER_ALIGNMENT);
-    btnAuditoria.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-    menu.add(btnAdmin);
-    menu.add(Box.createVerticalStrut(5));
-    menu.add(btnAuditoria);
-
-    menu.add(Box.createVerticalGlue());
-
-    // Botón Cerrar Sesión
-    btnSalir = new Botón("Cerrar Sesión", new Color(239, 68, 68));
-    btnSalir.setFont(new Font("Segoe UI", Font.BOLD, 12));
-    btnSalir.setPreferredSize(new Dimension(210, 40));
-    btnSalir.setMaximumSize(new Dimension(210, 40));
-    btnSalir.setAlignmentX(Component.CENTER_ALIGNMENT);
-    menu.add(btnSalir);
-
-    return menu;
-  }
-
-  private JLabel crearEtiquetaSeccion(String texto) {
-    JLabel lbl = new JLabel(texto);
+    // Principal
+    JLabel lbl = new JLabel("PRINCIPAL");
     lbl.setFont(new Font("Segoe UI", Font.BOLD, 11));
     lbl.setForeground(new Color(107, 114, 128));
     lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
     lbl.setBorder(new EmptyBorder(0, 5, 10, 0));
     lbl.setAlignmentX(Component.CENTER_ALIGNMENT);
-    return lbl;
-  }
+    menu.add(lbl);
+    botónInicio = Botón.crearBotónMenu("Inicio", null);
+    botónClientes = Botón.crearBotónMenu("Clientes",null);
+    botónTanqueros = Botón.crearBotónMenu("Tanqueros", null);
+    botónProveedores = Botón.crearBotónMenu("Proveedores",null);
+    botónFacturacion = Botón.crearBotónMenu("Facturación", null);
+    botónInicio.setAlignmentX(Component.CENTER_ALIGNMENT);
+    botónClientes.setAlignmentX(Component.CENTER_ALIGNMENT);
+    botónTanqueros.setAlignmentX(Component.CENTER_ALIGNMENT);
+    botónProveedores.setAlignmentX(Component.CENTER_ALIGNMENT);
+    botónFacturacion.setAlignmentX(Component.CENTER_ALIGNMENT);
+    menu.add(botónInicio);
+    menu.add(Box.createVerticalStrut(5));
+    menu.add(botónClientes);
+    menu.add(Box.createVerticalStrut(5));
+    menu.add(botónTanqueros);
+    menu.add(Box.createVerticalStrut(5));
+    menu.add(botónProveedores);
+    menu.add(Box.createVerticalStrut(5));
+    menu.add(botónFacturacion);
+    menu.add(Box.createVerticalStrut(15));
 
-  private Botón crearBotónMenuModerno(String texto, Color colorIndicador) {
-    Botón btn = new Botón("  " + texto, new Color(55, 65, 81));
-    btn.setHorizontalAlignment(SwingConstants.LEFT);
-    btn.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-    btn.setPreferredSize(new Dimension(210, 42));
-    btn.setMaximumSize(new Dimension(210, 42));
+    // Sistema
+    JLabel lbs = new JLabel("SISTEMA");
+    lbs.setFont(new Font("Segoe UI", Font.BOLD, 11));
+    lbs.setForeground(new Color(107, 114, 128));
+    lbs.setAlignmentX(Component.LEFT_ALIGNMENT);
+    lbs.setBorder(new EmptyBorder(0, 5, 10, 0));
+    lbs.setAlignmentX(Component.CENTER_ALIGNMENT);
+    menu.add(lbs);
+    botónAdmin = Botón.crearBotónMenu("Administración", null);
+    botónAuditoria = Botón.crearBotónMenu("Auditoría", null);
+    botónAdmin.setAlignmentX(Component.CENTER_ALIGNMENT);
+    botónAuditoria.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-    // Efecto hover personalizado
-    btn.addMouseListener(new java.awt.event.MouseAdapter() {
-      Color colorOriginal = btn.getBackground();
+    menu.add(botónAdmin);
+    menu.add(Box.createVerticalStrut(5));
+    menu.add(botónAuditoria);
 
-      public void mouseEntered(java.awt.event.MouseEvent evt) {
-        btn.setBackground(new Color(75, 85, 99));
-      }
+    menu.add(Box.createVerticalGlue());
 
-      public void mouseExited(java.awt.event.MouseEvent evt) {
-        btn.setBackground(colorOriginal);
-      }
-    });
+    // Cerrar Sesión
+    botónSalir = Botón.crearBotónMenu("Cerrar Sesión", new Color(239, 68, 68));
+    botónSalir.setFont(new Font("Segoe UI", Font.BOLD, 12));
+    botónSalir.setPreferredSize(new Dimension(210, 40));
+    botónSalir.setMaximumSize(new Dimension(210, 40));
+    botónSalir.setAlignmentX(Component.CENTER_ALIGNMENT);
+    menu.add(botónSalir);
 
-    return btn;
+    return menu;
   }
 
   private void asignarEventos() {
@@ -229,8 +213,9 @@ public class VentanaPrincipal extends JFrame {
 
     btnSalir.addActionListener(e -> {
       if(GestorAlertas.confirmarCerrarSesión(this, "¿Seguro que desea cerrar sesión?")) {
+
         dispose();
-        VentanaInicio.obtenerVentana().setVisible(true);
+        System.exit(0);
       }
     });
   }
@@ -255,7 +240,6 @@ public class VentanaPrincipal extends JFrame {
     JPanel dashboard = new JPanel(new GridLayout(2, 3, 20, 20));
     dashboard.setBackground(new Color(18, 18, 18));
 
-    // Tarjetas con estadísticas
     dashboard.add(crearTarjetaEstadistica("15,400", "Litros Hoy", new Color(0, 22, 141)));
     dashboard.add(crearTarjetaEstadistica("8", "Viajes Activos", new Color(234, 177, 0)));
     dashboard.add(crearTarjetaEstadistica("124", "Clientes", new Color(40, 167, 69)));
@@ -303,8 +287,9 @@ public class VentanaPrincipal extends JFrame {
   private void iniciarReloj() {
     timer = new Timer(1000, e -> {
       LocalDateTime now = LocalDateTime.now();
-      etiquetaFecha.setText(now.format(DateTimeFormatter.ofPattern("dd/MM/yyyy  HH:mm:ss")));
+      etiquetaFecha.setText(now.format(DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss")));
     });
     timer.start();
   }
+
 }
