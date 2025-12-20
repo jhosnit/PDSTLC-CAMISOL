@@ -224,7 +224,7 @@ public class VentanaPrincipal extends JFrame {
     btnAdmin.addActionListener(e -> cambiarPanel("ADMINISTRACIÓN", new JPanel()));
     btnAuditoria.addActionListener(e -> cambiarPanel("AUDITORÍA", new JPanel()));
     btnFacturacion.addActionListener(e -> cambiarPanel("FACTURACIÓN", new JPanel()));
-    btnProveedores.addActionListener(e -> cambiarPanel("PROVEEDORES", new JPanel()));
+    btnProveedores.addActionListener(e -> cambiarPanel("PROVEEDORES", new Proveedor()));
     btnTanqueros.addActionListener(e -> cambiarPanel("TANQUEROS", new JPanel()));
 
     btnSalir.addActionListener(e -> {
