@@ -13,18 +13,18 @@ public class VentanaPrincipal extends JFrame {
 
   private JLabel etiquetaUsuario;
   private JLabel etiquetaFecha;
-  private JLabel etiquetaTítuloSección;
+  private JLabel etiquetaTítulo;
   private Timer timer;
-  private JPanel panelDeContenido;
+  private JPanel panelContenido;
   private JPanel panelMenú;
 
   private Botón botónInicio;
   private Botón botónAdmin;
-  private Botón botónAuditoria;
-  private Botón botónClientes;
-  private Botón botónFacturacion;
-  private Botón botónProveedores;
-  private Botón botónTanqueros;
+  private Botón botónAuditoría;
+  private Botón botónCliente;
+  private Botón botónFacturación;
+  private Botón botónProveedor;
+  private Botón botónTanquero;
   private Botón botónSalir;
 
   public VentanaPrincipal() {
@@ -113,18 +113,18 @@ public class VentanaPrincipal extends JFrame {
     JPanel panelBreadcrumb = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 15));
     panelBreadcrumb.setBackground(new Color(18, 18, 18));
 
-    etiquetaTítuloSección = new JLabel();
-    etiquetaTítuloSección.setFont(new Font("Segoe UI", Font.BOLD, 20));
-    etiquetaTítuloSección.setForeground(new Color(229, 231, 235));
-    panelBreadcrumb.add(etiquetaTítuloSección);
+    this.etiquetaTítulo = new JLabel();
+    this.etiquetaTítulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
+    this.etiquetaTítulo.setForeground(new Color(229, 231, 235));
+    panelBreadcrumb.add(this.etiquetaTítulo);
 
     // Panel de contenido
-    panelDeContenido = new JPanel(new BorderLayout());
-    panelDeContenido.setBackground(new Color(18, 18, 18));
-    panelDeContenido.setBorder(new EmptyBorder(10, 20, 20, 20));
+    panelContenido = new JPanel(new BorderLayout());
+    panelContenido.setBackground(new Color(18, 18, 18));
+    panelContenido.setBorder(new EmptyBorder(10, 20, 20, 20));
 
     areaContenido.add(panelBreadcrumb, BorderLayout.NORTH);
-    areaContenido.add(panelDeContenido, BorderLayout.CENTER);
+    areaContenido.add(panelContenido, BorderLayout.CENTER);
 
     contenedorPrincipal.add(panelMenú, BorderLayout.WEST);
     contenedorPrincipal.add(areaContenido, BorderLayout.CENTER);
@@ -152,24 +152,24 @@ public class VentanaPrincipal extends JFrame {
     lbl.setAlignmentX(Component.CENTER_ALIGNMENT);
     menu.add(lbl);
     botónInicio = Botón.crearBotónMenu("Inicio", null);
-    botónClientes = Botón.crearBotónMenu("Clientes", null);
-    botónTanqueros = Botón.crearBotónMenu("Tanqueros", null);
-    botónProveedores = Botón.crearBotónMenu("Proveedores", null);
-    botónFacturacion = Botón.crearBotónMenu("Facturación", null);
+    botónCliente = Botón.crearBotónMenu("Clientes", null);
+    botónTanquero = Botón.crearBotónMenu("Tanqueros", null);
+    botónProveedor = Botón.crearBotónMenu("Proveedores", null);
+    botónFacturación = Botón.crearBotónMenu("Facturación", null);
     botónInicio.setAlignmentX(Component.CENTER_ALIGNMENT);
-    botónClientes.setAlignmentX(Component.CENTER_ALIGNMENT);
-    botónTanqueros.setAlignmentX(Component.CENTER_ALIGNMENT);
-    botónProveedores.setAlignmentX(Component.CENTER_ALIGNMENT);
-    botónFacturacion.setAlignmentX(Component.CENTER_ALIGNMENT);
+    botónCliente.setAlignmentX(Component.CENTER_ALIGNMENT);
+    botónTanquero.setAlignmentX(Component.CENTER_ALIGNMENT);
+    botónProveedor.setAlignmentX(Component.CENTER_ALIGNMENT);
+    botónFacturación.setAlignmentX(Component.CENTER_ALIGNMENT);
     menu.add(botónInicio);
     menu.add(Box.createVerticalStrut(5));
-    menu.add(botónClientes);
+    menu.add(botónCliente);
     menu.add(Box.createVerticalStrut(5));
-    menu.add(botónTanqueros);
+    menu.add(botónTanquero);
     menu.add(Box.createVerticalStrut(5));
-    menu.add(botónProveedores);
+    menu.add(botónProveedor);
     menu.add(Box.createVerticalStrut(5));
-    menu.add(botónFacturacion);
+    menu.add(botónFacturación);
     menu.add(Box.createVerticalStrut(15));
 
     // Sistema
@@ -181,13 +181,13 @@ public class VentanaPrincipal extends JFrame {
     lbs.setAlignmentX(Component.CENTER_ALIGNMENT);
     menu.add(lbs);
     botónAdmin = Botón.crearBotónMenu("Administración", null);
-    botónAuditoria = Botón.crearBotónMenu("Auditoría", null);
+    botónAuditoría = Botón.crearBotónMenu("Auditoría", null);
     botónAdmin.setAlignmentX(Component.CENTER_ALIGNMENT);
-    botónAuditoria.setAlignmentX(Component.CENTER_ALIGNMENT);
+    botónAuditoría.setAlignmentX(Component.CENTER_ALIGNMENT);
 
     menu.add(botónAdmin);
     menu.add(Box.createVerticalStrut(5));
-    menu.add(botónAuditoria);
+    menu.add(botónAuditoría);
 
     menu.add(Box.createVerticalGlue());
 
@@ -204,12 +204,12 @@ public class VentanaPrincipal extends JFrame {
 
   private void asignarEventos() {
     botónInicio.addActionListener(e -> mostrarInicio());
-    botónClientes.addActionListener(e -> cambiarPanel("CLIENTES", new Cliente()));
+    botónCliente.addActionListener(e -> cambiarPanel("CLIENTES", new Cliente()));
     botónAdmin.addActionListener(e -> cambiarPanel("ADMINISTRACIÓN", new Administración()));
-    botónAuditoria.addActionListener(e -> cambiarPanel("AUDITORÍA", new Auditoría()));
-    botónFacturacion.addActionListener(e -> cambiarPanel("FACTURACIÓN", new Facturación()));
-    botónProveedores.addActionListener(e -> cambiarPanel("PROVEEDORES", new Proveedor()));
-    botónTanqueros.addActionListener(e -> cambiarPanel("TANQUEROS", new Tanquero()));
+    botónAuditoría.addActionListener(e -> cambiarPanel("AUDITORÍA", new Auditoría()));
+    botónFacturación.addActionListener(e -> cambiarPanel("FACTURACIÓN", new Facturación()));
+    botónProveedor.addActionListener(e -> cambiarPanel("PROVEEDORES", new Proveedor()));
+    botónTanquero.addActionListener(e -> cambiarPanel("TANQUEROS", new Tanquero()));
 
     botónSalir.addActionListener(e -> {
       if (GestorAlertas.confirmarCerrarSesión(this, "¿Seguro que desea cerrar sesión?")) {
@@ -221,21 +221,21 @@ public class VentanaPrincipal extends JFrame {
   }
 
   private void cambiarPanel(String titulo, Component panel) {
-    etiquetaTítuloSección.setText(titulo);
-    panelDeContenido.removeAll();
+    etiquetaTítulo.setText(titulo);
+    panelContenido.removeAll();
 
     JPanel contenedor = new JPanel(new BorderLayout());
     contenedor.setBackground(new Color(18, 18, 18));
     contenedor.add(panel, BorderLayout.CENTER);
 
-    panelDeContenido.add(contenedor, BorderLayout.CENTER);
-    panelDeContenido.revalidate();
-    panelDeContenido.repaint();
+    panelContenido.add(contenedor, BorderLayout.CENTER);
+    panelContenido.revalidate();
+    panelContenido.repaint();
   }
 
   private void mostrarInicio() {
-    etiquetaTítuloSección.setText("INICIO");
-    panelDeContenido.removeAll();
+    etiquetaTítulo.setText("INICIO");
+    panelContenido.removeAll();
 
     JPanel dashboard = new JPanel(new GridLayout(2, 3, 20, 20));
     dashboard.setBackground(new Color(18, 18, 18));
@@ -247,9 +247,9 @@ public class VentanaPrincipal extends JFrame {
     dashboard.add(crearTarjetaEstadistica("$12,450", "Facturación Hoy", new Color(168, 85, 247)));
     dashboard.add(crearTarjetaEstadistica("0", "Alertas", new Color(239, 68, 68)));
 
-    panelDeContenido.add(dashboard, BorderLayout.CENTER);
-    panelDeContenido.revalidate();
-    panelDeContenido.repaint();
+    panelContenido.add(dashboard, BorderLayout.CENTER);
+    panelContenido.revalidate();
+    panelContenido.repaint();
   }
 
   private JPanel crearTarjetaEstadistica(String valor, String titulo, Color colorBorde) {

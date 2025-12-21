@@ -32,19 +32,19 @@ public class Proveedor extends JPanel {
 
     // Colores basados en tu imagen de referencia y VentanaPrincipal
     botónAgregar = new Botón("Registrar Proveedor", new Color(40, 167, 69)); // Verde
-    botónConsultar = new Botón("Consultar ", new Color(234, 177, 0)); // Azul Grisáceo
-    botónActualizar = new Botón("Modificar ", new Color(70, 128, 139)); // Amarillo/Oro
+    botónActualizar = new Botón("Actualizar ", new Color(234, 177, 0)); // Amarillo/Oro
+    botónConsultar = new Botón("Consultar ", new Color(70, 128, 139)); // Azul Grisáceo
     botónEliminar = new Botón("Eliminar", new Color(239, 68, 68)); // Rojo
 
     Dimension dimBoton = new Dimension(150, 40);
     botónAgregar.setPreferredSize(dimBoton);
-    botónConsultar.setPreferredSize(dimBoton);
     botónActualizar.setPreferredSize(dimBoton);
+    botónConsultar.setPreferredSize(dimBoton);
     botónEliminar.setPreferredSize(dimBoton);
 
     panelBotones.add(botónAgregar);
-    panelBotones.add(botónConsultar);
     panelBotones.add(botónActualizar);
+    panelBotones.add(botónConsultar);
     panelBotones.add(botónEliminar);
 
     add(panelBotones, BorderLayout.NORTH);

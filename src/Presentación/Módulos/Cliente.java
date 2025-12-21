@@ -15,7 +15,7 @@ public class Cliente extends JPanel {
   private JTable tablaClientes;
   private DefaultTableModel modeloTabla;
 
-  private Botón btnAgregar, btnActualizar, btnCambiarEstado, btnConsultar, btnEliminar;
+  private Botón btnRegistrar, btnActualizar, btnCambiarEstado, btnConsultar, btnEliminar;
 
   public Cliente() {
     inicializarComponentes();
@@ -29,20 +29,20 @@ public class Cliente extends JPanel {
     JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
     panelBotones.setOpaque(false);
 
-    btnAgregar    = new Botón("Agregar Cliente", new Color(40, 167, 69));
-    btnConsultar  = new Botón("Consultar", new Color(70, 128, 139));
+    btnRegistrar = new Botón("Registrar Cliente", new Color(40, 167, 69));
     btnActualizar = new Botón("Actualizar", new Color(234, 177, 0));
+    btnConsultar  = new Botón("Consultar", new Color(70, 128, 139));
     btnCambiarEstado = new Botón("Cambiar Estado", new Color(147, 51, 234));
     btnEliminar   = new Botón("Eliminar", new Color(239, 68, 68));
 
     Dimension dimBoton = new Dimension(150, 40);
-    btnAgregar.setPreferredSize(dimBoton);
+    btnRegistrar.setPreferredSize(dimBoton);
     btnActualizar.setPreferredSize(dimBoton);
     btnConsultar.setPreferredSize(dimBoton);
     btnCambiarEstado.setPreferredSize(dimBoton);
     btnEliminar.setPreferredSize(dimBoton);
 
-    panelBotones.add(btnAgregar);
+    panelBotones.add(btnRegistrar);
     panelBotones.add(btnActualizar);
     panelBotones.add(btnConsultar);
     panelBotones.add(btnCambiarEstado);
@@ -59,7 +59,7 @@ public class Cliente extends JPanel {
     add(scroll, BorderLayout.CENTER);
 
 
-    btnAgregar.addActionListener(e -> GestorAlertas.mostrarExito(this, "registrar usuario"));
+    btnRegistrar.addActionListener(e -> GestorAlertas.mostrarExito(this, "registrar usuario"));
     btnActualizar.addActionListener(e -> GestorAlertas.mostrarExito(this, "Actualizar usuario"));
     btnCambiarEstado.addActionListener(e -> GestorAlertas.mostrarExito(this, "Cambiar Estado usuario"));
   }
