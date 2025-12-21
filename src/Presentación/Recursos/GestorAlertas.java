@@ -31,4 +31,9 @@ public class GestorAlertas {
     JOptionPane.showMessageDialog(component, label, "Operación Exitosa", JOptionPane.PLAIN_MESSAGE);
   }
 
+  public static void mostrarInfo(Component component, String mensaje) {
+    JLabel label = new JLabel(mensaje);
+    label.setHorizontalAlignment(SwingConstants.CENTER);
+    JOptionPane.showMessageDialog(component, label, "Información", JOptionPane.PLAIN_MESSAGE);
+  }
 }
