@@ -1,7 +1,6 @@
 package Presentación.Ventanas;
 
-import Presentación.Módulos.Proveedor;
-import Presentación.Módulos.Tanquero;
+import Presentación.Módulos.*;
 import Presentación.Recursos.Botón;
 import Presentación.Recursos.GestorAlertas;
 import java.awt.*;
@@ -205,9 +204,9 @@ public class VentanaPrincipal extends JFrame {
 
   private void asignarEventos() {
     botónInicio.addActionListener(e -> mostrarInicio());
-    botónClientes.addActionListener(e -> cambiarPanel("CLIENTES", new JPanel()));
-    botónAdmin.addActionListener(e -> cambiarPanel("ADMINISTRACIÓN", new JPanel()));
-    botónAuditoria.addActionListener(e -> cambiarPanel("AUDITORÍA", new JPanel()));
+    botónClientes.addActionListener(e -> cambiarPanel("CLIENTES", new Cliente()));
+    botónAdmin.addActionListener(e -> cambiarPanel("ADMINISTRACIÓN", new Administración()));
+    botónAuditoria.addActionListener(e -> cambiarPanel("AUDITORÍA", new Auditoría()));
     botónFacturacion.addActionListener(e -> cambiarPanel("FACTURACIÓN", new JPanel()));
     botónProveedores.addActionListener(e -> cambiarPanel("PROVEEDORES", new Proveedor()));
     botónTanqueros.addActionListener(e -> cambiarPanel("TANQUEROS", new Tanquero()));
