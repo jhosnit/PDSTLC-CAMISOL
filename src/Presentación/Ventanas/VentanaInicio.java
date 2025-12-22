@@ -87,12 +87,12 @@ public class VentanaInicio extends JFrame {
 
     // Logo
     JLabel etiquetaLogo = new JLabel();
-    ImageIcon íconoImagen = new ImageIcon("src/Presentación/Recursos/Icono.png");
+    ImageIcon íconoImagen = new ImageIcon("src/Presentación/Recursos/logo.png");
     Image logo = íconoImagen.getImage().getScaledInstance(280, 280, Image.SCALE_SMOOTH);
     etiquetaLogo.setIcon(new ImageIcon(logo));
     etiquetaLogo.setAlignmentX(Component.CENTER_ALIGNMENT);
     contenido.add(etiquetaLogo);
-    contenido.add(Box.createRigidArea(new Dimension(0, 40)));
+    contenido.add(Box.createRigidArea(new Dimension(0, 10)));
 
     // Texto de la empresa
     JLabel lblBienvenida = new JLabel("<html><center>Sistema de Transporte<br>de Lácteos CAMISOL S.A.</center></html>");
