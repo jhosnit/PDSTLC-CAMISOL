@@ -3,6 +3,7 @@ package Presentación.Ventanas;
 import Presentación.Módulos.Auditoría;
 import Presentación.Recursos.Botón;
 import Presentación.Recursos.GestorAlertas;
+import Presentación.Recursos.GestorUsuarios;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -232,7 +233,7 @@ public class VentanaInicio extends JFrame {
       return;
     }
 
-    if (usuario.equals("admin") && contraseña.equals("admin")) {
+    if (GestorUsuarios.obtenerInstancia().validarCredenciales(usuario, contraseña)) {
       Auditoría.obtenerInstancia().loginExitoso();
       dispose();
       new VentanaPrincipal().setVisible(true);

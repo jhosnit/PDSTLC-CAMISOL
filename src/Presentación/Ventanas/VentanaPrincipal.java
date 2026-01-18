@@ -220,7 +220,9 @@ public class VentanaPrincipal extends JFrame {
       if (GestorAlertas.confirmarCerrarSesión(this, "¿Seguro que desea cerrar sesión?")) {
 
         dispose();
-        System.exit(0);
+        SwingUtilities.invokeLater(() -> {
+          new VentanaInicio().setVisible(true);
+        });
       }
     });
   }
