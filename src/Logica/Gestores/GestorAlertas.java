@@ -1,7 +1,4 @@
-package Presentación.Recursos;
-
-import Presentación.Módulos.Auditoría;
-import Presentación.Módulos.Servicio;
+package Logica.Gestores;
 
 import javax.swing.*;
 import java.awt.*;
