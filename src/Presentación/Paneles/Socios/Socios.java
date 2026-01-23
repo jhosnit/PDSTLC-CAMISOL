@@ -1,4 +1,4 @@
-package Presentación.Módulos;
+package Presentación.Paneles.Socios;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -8,16 +8,16 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
 import Presentación.Recursos.Botón;
-import Presentación.Recursos.GestorAlertas;
+import Logica.Gestores.GestorAlertas;
 
-public class Cliente extends JPanel {
+public class Socios extends JPanel {
 
   private JTable tablaClientes;
   private DefaultTableModel modeloTabla;
 
   private Botón btnRegistrar, btnActualizar, btnCambiarEstado, btnConsultar, btnEliminar;
 
-  public Cliente() {
+  public Socios() {
     inicializarComponentes();
   }
 

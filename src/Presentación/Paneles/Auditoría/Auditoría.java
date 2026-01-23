@@ -1,7 +1,7 @@
-package Presentación.Módulos;
+package Presentación.Paneles.Auditoría;
 
 import Presentación.Recursos.Botón;
-import Presentación.Recursos.GestorAlertas;
+import Logica.Gestores.GestorAlertas;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

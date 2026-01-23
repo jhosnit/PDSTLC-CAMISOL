@@ -1,4 +1,4 @@
-package Presentación.Módulos;
+package Presentación.Paneles.Transporte;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -16,9 +16,9 @@ import java.util.Date;
 import java.util.List;
 
 import Presentación.Recursos.Botón;
-import Presentación.Recursos.GestorAlertas;
+import Logica.Gestores.GestorAlertas;
 
-public class Servicio extends JPanel {
+public class Transporte extends JPanel {
     
     // Clase para rango de tarifas
     private static class RangoTarifa {
@@ -77,7 +77,7 @@ public class Servicio extends JPanel {
     private int filaEditando = -1;
     
     // Constructor principal
-    public Servicio() {
+    public Transporte() {
         inicializarDatos();
         inicializarComponentes();
     }

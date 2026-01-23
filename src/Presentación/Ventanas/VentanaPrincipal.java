@@ -1,8 +1,13 @@
 package Presentación.Ventanas;
 
-import Presentación.Módulos.*;
+import Logica.Entidades.Usuario;
+import Presentación.Paneles.Administración.Administración;
+import Presentación.Paneles.Auditoría.Auditoría;
+import Presentación.Paneles.Socios.Tanqueros.Tanquero;
+import Presentación.Paneles.Socios.Socios;
+import Presentación.Paneles.Transporte.Transporte;
 import Presentación.Recursos.Botón;
-import Presentación.Recursos.GestorAlertas;
+import Logica.Gestores.GestorAlertas;
 
 import java.awt.*;
 import java.time.LocalDateTime;
@@ -12,6 +17,7 @@ import javax.swing.border.EmptyBorder;
 
 public class VentanaPrincipal extends JFrame {
 
+  private Usuario usuario;
   private JLabel etiquetaUsuario;
   private JLabel etiquetaFecha;
   private JLabel etiquetaTítulo;
@@ -28,7 +34,8 @@ public class VentanaPrincipal extends JFrame {
   private Botón botónTanquero;
   private Botón botónSalir;
 
-  public VentanaPrincipal() {
+  public VentanaPrincipal(Usuario usuario) {
+    this.usuario = usuario;
     inicializarComponentes();
     configurarVentana();
     iniciarReloj();
@@ -52,7 +59,6 @@ public class VentanaPrincipal extends JFrame {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Degradado
         GradientPaint gp = new GradientPaint(
           0, 0, new Color(234, 177, 0),
           getWidth(), 0, new Color(0, 22, 141));
@@ -61,17 +67,14 @@ public class VentanaPrincipal extends JFrame {
       }
     };
 
-    // Panel encabezado
     panelEncabezado.setOpaque(false);
     panelEncabezado.setBorder(new EmptyBorder(15, 20, 15, 20));
     panelEncabezado.setPreferredSize(new Dimension(0, 80));
 
-    // Titulo
     JLabel etiquetaTítulo = new JLabel("CAMISOL S.A. - SISTEMA DE TRANSPORTE");
     etiquetaTítulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
     etiquetaTítulo.setForeground(Color.WHITE);
 
-    // Información usuario y fecha
     JPanel panelInformación = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
     panelInformación.setOpaque(false);
 
@@ -81,7 +84,7 @@ public class VentanaPrincipal extends JFrame {
     JLabel lblIconoUsuario = new JLabel("●");
     lblIconoUsuario.setFont(new Font("Segoe UI", Font.BOLD, 14));
     lblIconoUsuario.setForeground(new Color(31, 234, 0));
-    etiquetaUsuario = new JLabel("Administrador");
+    etiquetaUsuario = new JLabel(usuario.getRol());
     etiquetaUsuario.setFont(new Font("Segoe UI", Font.BOLD, 13));
     etiquetaUsuario.setForeground(Color.WHITE);
 
@@ -99,18 +102,14 @@ public class VentanaPrincipal extends JFrame {
     panelEncabezado.add(etiquetaTítulo, BorderLayout.WEST);
     panelEncabezado.add(panelInformación, BorderLayout.EAST);
 
-    // Panel principal
     JPanel contenedorPrincipal = new JPanel(new BorderLayout());
     contenedorPrincipal.setBackground(new Color(18, 18, 18));
 
-    // Panel de menú lateral
     panelMenú = crearMenuLateral();
 
-    // Panel de contenido
     JPanel areaContenido = new JPanel(new BorderLayout());
     areaContenido.setBackground(new Color(18, 18, 18));
 
-    // Título de sección
     JPanel panelBreadcrumb = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 15));
     panelBreadcrumb.setBackground(new Color(18, 18, 18));
 
@@ -119,7 +118,6 @@ public class VentanaPrincipal extends JFrame {
     this.etiquetaTítulo.setForeground(new Color(229, 231, 235));
     panelBreadcrumb.add(this.etiquetaTítulo);
 
-    // Panel de contenido
     panelContenido = new JPanel(new BorderLayout());
     panelContenido.setBackground(new Color(18, 18, 18));
     panelContenido.setBorder(new EmptyBorder(10, 20, 20, 20));
@@ -144,7 +142,7 @@ public class VentanaPrincipal extends JFrame {
     menu.setBorder(new EmptyBorder(20, 15, 20, 15));
     menu.setPreferredSize(new Dimension(240, 0));
 
-    // Principal
+    // PRINCIPAL
     JLabel lbl = new JLabel("PRINCIPAL");
     lbl.setFont(new Font("Segoe UI", Font.BOLD, 11));
     lbl.setForeground(new Color(107, 114, 128));
@@ -152,16 +150,19 @@ public class VentanaPrincipal extends JFrame {
     lbl.setBorder(new EmptyBorder(0, 5, 10, 0));
     lbl.setAlignmentX(Component.CENTER_ALIGNMENT);
     menu.add(lbl);
+
     botónInicio = Botón.crearBotónMenu("Inicio", null);
     botónCliente = Botón.crearBotónMenu("Clientes", null);
     botónTanquero = Botón.crearBotónMenu("Tanqueros", null);
     botónProveedor = Botón.crearBotónMenu("Proveedores", null);
     botónServicio = Botón.crearBotónMenu("Servicios", null);
+
     botónInicio.setAlignmentX(Component.CENTER_ALIGNMENT);
     botónCliente.setAlignmentX(Component.CENTER_ALIGNMENT);
     botónTanquero.setAlignmentX(Component.CENTER_ALIGNMENT);
     botónProveedor.setAlignmentX(Component.CENTER_ALIGNMENT);
     botónServicio.setAlignmentX(Component.CENTER_ALIGNMENT);
+
     menu.add(botónInicio);
     menu.add(Box.createVerticalStrut(5));
     menu.add(botónCliente);
@@ -173,22 +174,25 @@ public class VentanaPrincipal extends JFrame {
     menu.add(botónServicio);
     menu.add(Box.createVerticalStrut(15));
 
-    // Sistema
-    JLabel lbs = new JLabel("SISTEMA");
-    lbs.setFont(new Font("Segoe UI", Font.BOLD, 11));
-    lbs.setForeground(new Color(107, 114, 128));
-    lbs.setAlignmentX(Component.LEFT_ALIGNMENT);
-    lbs.setBorder(new EmptyBorder(0, 5, 10, 0));
-    lbs.setAlignmentX(Component.CENTER_ALIGNMENT);
-    menu.add(lbs);
-    botónAdmin = Botón.crearBotónMenu("Administración", null);
-    botónAuditoría = Botón.crearBotónMenu("Auditoría", null);
-    botónAdmin.setAlignmentX(Component.CENTER_ALIGNMENT);
-    botónAuditoría.setAlignmentX(Component.CENTER_ALIGNMENT);
+    // Solo para administrador
+    if (usuario.getRol().equalsIgnoreCase("ADMINISTRADOR")) {
+      JLabel lbs = new JLabel("SISTEMA");
+      lbs.setFont(new Font("Segoe UI", Font.BOLD, 11));
+      lbs.setForeground(new Color(107, 114, 128));
+      lbs.setAlignmentX(Component.LEFT_ALIGNMENT);
+      lbs.setBorder(new EmptyBorder(0, 5, 10, 0));
+      lbs.setAlignmentX(Component.CENTER_ALIGNMENT);
+      menu.add(lbs);
 
-    menu.add(botónAdmin);
-    menu.add(Box.createVerticalStrut(5));
-    menu.add(botónAuditoría);
+      botónAdmin = Botón.crearBotónMenu("Administración", null);
+      botónAuditoría = Botón.crearBotónMenu("Auditoría", null);
+      botónAdmin.setAlignmentX(Component.CENTER_ALIGNMENT);
+      botónAuditoría.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+      menu.add(botónAdmin);
+      menu.add(Box.createVerticalStrut(5));
+      menu.add(botónAuditoría);
+    }
 
     menu.add(Box.createVerticalGlue());
 
@@ -205,20 +209,22 @@ public class VentanaPrincipal extends JFrame {
 
   private void asignarEventos() {
     botónInicio.addActionListener(e -> mostrarInicio());
-    botónCliente.addActionListener(e -> cambiarPanel("CLIENTES", new Cliente()));
-    botónAdmin.addActionListener(e -> cambiarPanel("ADMINISTRACIÓN", new Administración()));
-    botónAuditoría.addActionListener(e -> {
-      if (Auditoría.solicitarContraseña()) {
-        cambiarPanel("AUDITORÍA", Auditoría.obtenerInstancia());
-      }
-    });
-    botónServicio.addActionListener(e -> cambiarPanel("SERVICIOS", new Servicio()));
-    botónProveedor.addActionListener(e -> cambiarPanel("PROVEEDORES", new Proveedor()));
+    botónCliente.addActionListener(e -> cambiarPanel("CLIENTES", new Socios()));
+    botónServicio.addActionListener(e -> cambiarPanel("SERVICIOS", new Transporte()));
+    botónProveedor.addActionListener(e -> cambiarPanel("PROVEEDORES", null));
     botónTanquero.addActionListener(e -> cambiarPanel("TANQUEROS", new Tanquero()));
+
+    if (usuario.getRol().equalsIgnoreCase("ADMINISTRADOR")) {
+      botónAdmin.addActionListener(e -> cambiarPanel("ADMINISTRACIÓN", new Administración(usuario)));
+      botónAuditoría.addActionListener(e -> {
+        if (Auditoría.solicitarContraseña()) {
+          cambiarPanel("AUDITORÍA", Auditoría.obtenerInstancia());
+        }
+      });
+    }
 
     botónSalir.addActionListener(e -> {
       if (GestorAlertas.confirmarCerrarSesión(this, "¿Seguro que desea cerrar sesión?")) {
-
         dispose();
         SwingUtilities.invokeLater(() -> {
           new VentanaInicio().setVisible(true);
@@ -297,5 +303,4 @@ public class VentanaPrincipal extends JFrame {
     });
     timer.start();
   }
-
 }

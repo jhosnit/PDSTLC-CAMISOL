@@ -1,9 +1,10 @@
 package Presentación.Ventanas;
 
-import Presentación.Módulos.Auditoría;
+import Logica.Entidades.Usuario;
+import Presentación.Paneles.Auditoría.Auditoría;
 import Presentación.Recursos.Botón;
-import Presentación.Recursos.GestorAlertas;
-import Presentación.Recursos.GestorUsuarios;
+import Logica.Gestores.GestorAlertas;
+import Logica.Gestores.GestorUsuarios;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -50,7 +51,7 @@ public class VentanaInicio extends JFrame {
     gbc.fill = GridBagConstraints.BOTH;
     panelPrincipal.add(panelIzquierdo, gbc);
 
-    // Panel derecho con formulario
+    // Panel derecho formulario
     JPanel panelDerecho = crearPanelFormulario();
     gbc.gridx = 1;
     gbc.weightx = 0.6;
@@ -73,7 +74,6 @@ public class VentanaInicio extends JFrame {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Degradado
         GradientPaint gp = new GradientPaint(
           0, 0, new Color(234, 177, 0),
           getWidth(), getHeight(), new Color(0, 22, 141));
@@ -118,7 +118,7 @@ public class VentanaInicio extends JFrame {
     formulario.setOpaque(false);
     formulario.setBorder(new EmptyBorder(60, 50, 60, 50));
 
-    // Título del formulario
+    // Título
     JLabel lblTitulo = new JLabel("Iniciar Sesión");
     lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 28));
     lblTitulo.setForeground(Color.WHITE);
@@ -233,15 +233,18 @@ public class VentanaInicio extends JFrame {
       return;
     }
 
-    if (GestorUsuarios.obtenerInstancia().validarCredenciales(usuario, contraseña)) {
-      Auditoría.obtenerInstancia().loginExitoso();
+    if (new GestorUsuarios().validarCredenciales(usuario, contraseña)) {
+      // Auditoría.obtenerInstancia().loginExitoso();
+      Usuario usuarioLogueado = GestorUsuarios.obtenerUsuarioPorUsername(usuario);
       dispose();
-      new VentanaPrincipal().setVisible(true);
+      new VentanaPrincipal(usuarioLogueado).setVisible(true);
+
     } else {
       GestorAlertas.mostrarErrorLogin(this, "Usuario o contraseña incorrecto");
       textoUsuario.setText("");
       textoContraseña.setText("");
-      Auditoría.obtenerInstancia().loginFallido(usuario);
+      // Auditoría.obtenerInstancia().loginFallido(usuario);
+
     }
   }
 
