@@ -3,7 +3,7 @@ package Presentación.Ventanas;
 import Logica.Entidades.Usuario;
 import Presentación.Paneles.Administración.Administración;
 import Presentación.Paneles.Auditoría.Auditoría;
-import Presentación.Paneles.Socios.Tanqueros.Tanquero;
+import Presentación.Paneles.Tanqueros.Tanquero;
 import Presentación.Paneles.Socios.Socios;
 import Presentación.Paneles.Transporte.Transporte;
 import Presentación.Recursos.Botón;
@@ -209,7 +209,7 @@ public class VentanaPrincipal extends JFrame {
 
   private void asignarEventos() {
     botónInicio.addActionListener(e -> mostrarInicio());
-    botónCliente.addActionListener(e -> cambiarPanel("CLIENTES", new Socios()));
+    botónCliente.addActionListener(e -> cambiarPanel("SOCIOS", new Socios(usuario)));
     botónServicio.addActionListener(e -> cambiarPanel("SERVICIOS", new Transporte()));
     botónProveedor.addActionListener(e -> cambiarPanel("PROVEEDORES", null));
     botónTanquero.addActionListener(e -> cambiarPanel("TANQUEROS", new Tanquero()));

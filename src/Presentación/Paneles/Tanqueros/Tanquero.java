@@ -1,4 +1,4 @@
-package Presentación.Paneles.Socios.Tanqueros;
+package Presentación.Paneles.Tanqueros;
 
 import Presentación.Recursos.Botón;
 import java.awt.*;

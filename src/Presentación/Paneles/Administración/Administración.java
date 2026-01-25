@@ -21,13 +21,13 @@ public class Administración extends JPanel {
   private DefaultTableModel modeloTabla;
 
   private GestorUsuarios gestorUsuarios;
-  private GestorParámetros gestorParámetros;  // NUEVO   // NUEVO
+  private GestorParámetros gestorParámetros;
   private Usuario usuarioActual;
 
   public Administración(Usuario usuario) {
     this.usuarioActual = usuario;
     gestorUsuarios = new GestorUsuarios();
-    gestorParámetros = new GestorParámetros();    // NUEVO
+    gestorParámetros = new GestorParámetros();
     inicializarComponentes();
     cargarUsuarios();
   }
@@ -43,7 +43,7 @@ public class Administración extends JPanel {
     Botón botónCrearUsuario = new Botón("Crear Usuario", new Color(34, 197, 94));
     Botón botónCambiarClave = new Botón("Cambiar Contraseña", new Color(70, 128, 139));
     Botón botónCambiarEstado = new Botón("Cambiar Estado", new Color(251, 146, 60));
-    Botón botónParámetros = new Botón("Configurar Parámetros", new Color(59, 130, 246));
+    Botón botónParámetros = new Botón("Configurar Parámetro", new Color(59, 130, 246));
     Botón botónBackup = new Botón("Respaldar Sistema", new Color(249, 115, 22));
     Botón botónRestore = new Botón("Restaurar Sistema", new Color(239, 68, 68));
     Botón botónActualizar = new Botón("Actualizar Tabla", new Color(34, 197, 94));
@@ -298,7 +298,6 @@ public class Administración extends JPanel {
       return;
     }
 
-    // Crear panel con GridLayout igual que crear usuario
     JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
     panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
@@ -310,17 +309,12 @@ public class Administración extends JPanel {
       ? params.getUltimaModificacion().substring(0, 19)
       : "Sin modificaciones";
     JLabel lblModifValor = new JLabel(textoModif);
-/*
-    JLabel lblUsuarioModif = new JLabel("Modificado por:");
-    String textoUsuario = params.getUsuarioModificacion();
-    JLabel lblUsuarioValor = new JLabel(textoUsuario);
-*/
+
     panel.add(lblIVA);
     panel.add(txtIVA);
     panel.add(lblUltimaModif);
     panel.add(lblModifValor);
-//    panel.add(lblUsuarioModif);
-//    panel.add(lblUsuarioValor);
+
 
     int resultado = JOptionPane.showConfirmDialog(this, panel, "Configurar Parámetros del Sistema", JOptionPane.OK_CANCEL_OPTION,
       JOptionPane.PLAIN_MESSAGE);
@@ -362,19 +356,116 @@ public class Administración extends JPanel {
     chooser.setDialogTitle("Guardar respaldo del sistema");
     chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
+    String nombreSugerido = "BD_PDSTLC_" +
+      new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date()) + ".sql";
+    chooser.setSelectedFile(new File(nombreSugerido));
+
     if (chooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
       File archivo = chooser.getSelectedFile();
-      GestorAlertas.mostrarExito(
-        this,
-        "Respaldo generado:\n" + archivo.getAbsolutePath()
-      );
+
+      if (!archivo.getName().endsWith(".sql")) {
+        archivo = new File(archivo.getAbsolutePath() + ".sql");
+      }
+
+      final File archivoFinal = archivo;
+
+      SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+        @Override
+        protected Boolean doInBackground() throws Exception {
+          return ejecutarRespaldo(archivoFinal);
+        }
+
+        @Override
+        protected void done() {
+          try {
+            if (get()) {
+              GestorAlertas.mostrarExito(
+                Administración.this,
+                "Respaldo creado exitosamente"
+              );
+            } else {
+              GestorAlertas.mostrarError(
+                Administración.this,
+                "Error al crear el respaldo"
+              );
+            }
+          } catch (Exception e) {
+            GestorAlertas.mostrarError(
+              Administración.this,
+              "Error al crear respaldo: " + e.getMessage()
+            );
+          }
+        }
+      };
+      worker.execute();
     }
+  }
+
+  private boolean ejecutarRespaldo(File archivo) {
+    try {
+      String pgDumpPath = encontrarPgDump();
+
+      if (pgDumpPath == null) {
+        return false;
+      }
+
+      ProcessBuilder pb = new ProcessBuilder(
+        pgDumpPath,
+        "-h", "localhost",
+        "-p", "5432",
+        "-U", "postgres",
+        "-F", "p",
+        "-f", archivo.getAbsolutePath(),
+        "db_PDSTLC"
+      );
+
+      pb.environment().put("PGPASSWORD", "admin123");
+      pb.redirectErrorStream(true);
+
+      Process process = pb.start();
+
+      java.io.BufferedReader reader = new java.io.BufferedReader(
+        new java.io.InputStreamReader(process.getInputStream())
+      );
+
+      String line;
+      while ((line = reader.readLine()) != null) {
+        System.out.println(line);
+      }
+
+      int exitCode = process.waitFor();
+      return exitCode == 0;
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+
+  private String encontrarPgDump() {
+    String[] rutasPosibles = {
+      "C:\\Program Files\\PostgreSQL\\18\\bin\\pg_dump.exe",
+      "C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe",
+      "C:\\Program Files\\PostgreSQL\\16\\bin\\pg_dump.exe",
+      "C:\\Program Files\\PostgreSQL\\15\\bin\\pg_dump.exe",
+      "C:\\Program Files\\PostgreSQL\\14\\bin\\pg_dump.exe",
+      "C:\\Program Files (x86)\\PostgreSQL\\18\\bin\\pg_dump.exe",
+      "pg_dump"
+    };
+
+    for (String ruta : rutasPosibles) {
+      File f = new File(ruta);
+      if (f.exists()) {
+        return ruta;
+      }
+    }
+    return null;
   }
 
   private void restaurarSistema() {
     int confirmacion = JOptionPane.showConfirmDialog(
       this,
-      "¿Está seguro de restaurar el sistema?\nEsto sobrescribirá los datos actuales.",
+      "¿Está seguro de restaurar el sistema?",
       "Confirmar restauración",
       JOptionPane.YES_NO_OPTION,
       JOptionPane.PLAIN_MESSAGE
@@ -388,14 +479,118 @@ public class Administración extends JPanel {
     chooser.setDialogTitle("Seleccionar archivo de respaldo");
     chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
+    chooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
+      @Override
+      public boolean accept(File f) {
+        return f.isDirectory() || f.getName().toLowerCase().endsWith(".sql");
+      }
+
+      @Override
+      public String getDescription() {
+        return "Archivos SQL (*.sql)";
+      }
+    });
+
     if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
       File archivo = chooser.getSelectedFile();
-      GestorAlertas.mostrarAdvertencia(
-        this,
-        "Sistema restaurado desde:\n" + archivo.getAbsolutePath()
-      );
 
-      cargarUsuarios();
+      if (!archivo.exists()) {
+        GestorAlertas.mostrarError(this, "El archivo seleccionado no existe");
+        return;
+      }
+
+      SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+        @Override
+        protected Boolean doInBackground() throws Exception {
+          return ejecutarRestauración(archivo);
+        }
+
+        @Override
+        protected void done() {
+          try {
+            if (get()) {
+              GestorAlertas.mostrarExito(
+                Administración.this,
+                "Sistema restaurado exitosamente"
+              );
+              cargarUsuarios();
+            } else {
+              GestorAlertas.mostrarError(
+                Administración.this,
+                "Error al restaurar el sistema"
+              );
+            }
+          } catch (Exception e) {
+            GestorAlertas.mostrarError(
+              Administración.this,
+              "Error al restaurar: " + e.getMessage()
+            );
+          }
+        }
+      };
+      worker.execute();
     }
   }
+
+  private boolean ejecutarRestauración(File archivo) {
+    try {
+
+      String psqlPath = encontrarPsql();
+
+      if (psqlPath == null) {
+        return false;
+      }
+
+      ProcessBuilder pb = new ProcessBuilder(
+        psqlPath,
+        "-h", "localhost",
+        "-p", "5432",
+        "-U", "postgres",
+        "-d", "db_PDSTLC",
+        "-f", archivo.getAbsolutePath()
+      );
+
+      pb.environment().put("PGPASSWORD", "admin123");
+      pb.redirectErrorStream(true);
+
+      Process process = pb.start();
+
+      java.io.BufferedReader reader = new java.io.BufferedReader(
+        new java.io.InputStreamReader(process.getInputStream())
+      );
+      String line;
+      while ((line = reader.readLine()) != null) {
+        System.out.println(line);
+      }
+
+      int exitCode = process.waitFor();
+      return exitCode == 0;
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+
+  private String encontrarPsql() {
+    String[] rutasPosibles = {
+      "C:\\Program Files\\PostgreSQL\\18\\bin\\psql.exe",
+      "C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe",
+      "C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe",
+      "C:\\Program Files\\PostgreSQL\\15\\bin\\psql.exe",
+      "C:\\Program Files\\PostgreSQL\\14\\bin\\psql.exe",
+      "C:\\Program Files (x86)\\PostgreSQL\\18\\bin\\psql.exe",
+      "psql"
+    };
+
+    for (String ruta : rutasPosibles) {
+      File f = new File(ruta);
+      if (f.exists()) {
+        return ruta;
+      }
+    }
+
+    return null;
+  }
+
 }
