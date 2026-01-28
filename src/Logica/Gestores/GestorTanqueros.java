@@ -15,7 +15,7 @@ public class GestorTanqueros {
     try (Connection conn = ConexionBD.conectar();
          PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-      pstmt.setString(1, tanquero.getPlaca().toUpperCase()); // Placas siempre mayúsculas
+      pstmt.setString(1, tanquero.getPlaca().toUpperCase());
       pstmt.setString(2, tanquero.getMarca());
       pstmt.setString(3, tanquero.getModelo());
       pstmt.setInt(4, tanquero.getAnioFabricacion());
@@ -158,5 +158,12 @@ public class GestorTanqueros {
       return false;
     }
   }
+
+  public int obtenerIdPorPlaca(String placa) {
+    if (placa == null || placa.trim().isEmpty()) return -1;
+    Tanquero t = buscarPorPlaca(placa.trim().toUpperCase());
+    return (t != null) ? t.getIdTanquero() : -1;
+  }
+
 
 }
