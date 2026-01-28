@@ -4,8 +4,9 @@ import java.time.LocalDateTime;
 
 public class Socio {
   private int idSocio;
-  private String ruc;
-  private String razonSocial;
+  private String cedula;
+  private String nombres;
+  private String apellidos;
   private String direccion;
   private String telefono;
   private String correo;
@@ -17,92 +18,50 @@ public class Socio {
   public Socio() {
   }
 
-  public Socio(String ruc, String razonSocial, String direccion, String telefono, String correo) {
-    this.ruc = ruc;
-    this.razonSocial = razonSocial;
+  public Socio(String cedula, String nombres, String apellidos, String direccion, String telefono, String correo) {
+    this.cedula = cedula;
+    this.nombres = nombres;
+    this.apellidos = apellidos;
     this.direccion = direccion;
     this.telefono = telefono;
     this.correo = correo;
     this.estado = true;
   }
 
-  public int getIdSocio() {
-    return idSocio;
-  }
+  public int getIdSocio() { return idSocio; }
+  public void setIdSocio(int idSocio) { this.idSocio = idSocio; }
 
-  public void setIdSocio(int idSocio) {
-    this.idSocio = idSocio;
-  }
+  public String getCedula() { return cedula; }
+  public void setCedula(String cedula) { this.cedula = cedula; }
 
-  public String getRuc() {
-    return ruc;
-  }
+  public String getNombres() { return nombres; }
+  public void setNombres(String nombres) { this.nombres = nombres; }
 
-  public void setRuc(String ruc) {
-    this.ruc = ruc;
-  }
+  public String getApellidos() { return apellidos; }
+  public void setApellidos(String apellidos) { this.apellidos = apellidos; }
 
-  public String getRazonSocial() {
-    return razonSocial;
-  }
+  public String getDireccion() { return direccion; }
+  public void setDireccion(String direccion) { this.direccion = direccion; }
 
-  public void setRazonSocial(String razonSocial) {
-    this.razonSocial = razonSocial;
-  }
+  public String getTelefono() { return telefono; }
+  public void setTelefono(String telefono) { this.telefono = telefono; }
 
-  public String getDireccion() {
-    return direccion;
-  }
+  public String getCorreo() { return correo; }
+  public void setCorreo(String correo) { this.correo = correo; }
 
-  public void setDireccion(String direccion) {
-    this.direccion = direccion;
-  }
+  public boolean isEstado() { return estado; }
+  public void setEstado(boolean estado) { this.estado = estado; }
 
-  public String getTelefono() {
-    return telefono;
-  }
+  public LocalDateTime getFechaRegistro() { return fechaRegistro; }
+  public void setFechaRegistro(LocalDateTime fechaRegistro) { this.fechaRegistro = fechaRegistro; }
 
-  public void setTelefono(String telefono) {
-    this.telefono = telefono;
-  }
+  public LocalDateTime getFechaModificacion() { return fechaModificacion; }
+  public void setFechaModificacion(LocalDateTime fechaModificacion) { this.fechaModificacion = fechaModificacion; }
 
-  public String getCorreo() {
-    return correo;
-  }
+  public String getUsuarioRegistro() { return usuarioRegistro; }
+  public void setUsuarioRegistro(String usuarioRegistro) { this.usuarioRegistro = usuarioRegistro; }
 
-  public void setCorreo(String correo) {
-    this.correo = correo;
-  }
-
-  public boolean isEstado() {
-    return estado;
-  }
-
-  public void setEstado(boolean estado) {
-    this.estado = estado;
-  }
-
-  public LocalDateTime getFechaRegistro() {
-    return fechaRegistro;
-  }
-
-  public void setFechaRegistro(LocalDateTime fechaRegistro) {
-    this.fechaRegistro = fechaRegistro;
-  }
-
-  public LocalDateTime getFechaModificacion() {
-    return fechaModificacion;
-  }
-
-  public void setFechaModificacion(LocalDateTime fechaModificacion) {
-    this.fechaModificacion = fechaModificacion;
-  }
-
-  public String getUsuarioRegistro() {
-    return usuarioRegistro;
-  }
-
-  public void setUsuarioRegistro(String usuarioRegistro) {
-    this.usuarioRegistro = usuarioRegistro;
+  public String getNombreCompleto() {
+    return nombres + " " + apellidos;
   }
 }

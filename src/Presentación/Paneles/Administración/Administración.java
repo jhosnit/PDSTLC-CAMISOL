@@ -172,7 +172,7 @@ public class Administración extends JPanel {
     int resultado = JOptionPane.showConfirmDialog(
       this,
       panel,
-      "Crear Nuevo Usuario",
+      "Crear Usuario",
       JOptionPane.OK_CANCEL_OPTION,
       JOptionPane.PLAIN_MESSAGE
     );

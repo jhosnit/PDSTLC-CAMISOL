@@ -1,7 +1,6 @@
 package Presentación.Paneles.Socios;
 
 import Presentación.Recursos.Botón;
-import Presentación.Paneles.Auditoría.Auditoría;
 import Logica.Gestores.GestorAlertas;
 import Logica.Gestores.GestorSocios;
 import Logica.Entidades.Socio;
@@ -41,7 +40,7 @@ public class Socios extends JPanel {
     panelBotones.setOpaque(false);
 
     btnRegistrar = new Botón("Registrar", new Color(40, 167, 69));
-    btnActualizar = new Botón("Actualizar Datos", new Color(234, 177, 0));
+    btnActualizar = new Botón("Actualizar", new Color(234, 177, 0));
     btnConsultar = new Botón("Consultar", new Color(70, 128, 139));
     btnCambiarEstado = new Botón("Cambiar Estado", new Color(147, 51, 234));
     btnEliminar = new Botón("Eliminar", new Color(239, 68, 68));
@@ -78,7 +77,7 @@ public class Socios extends JPanel {
 
   private void crearTabla() {
     String[] columnas = {
-      "ID", "RUC", "Razón Social", "Teléfono", "Correo", "Dirección", "Estado"
+      "Cédula", "Nombres", "Apellidos", "Teléfono", "Correo", "Dirección", "Estado"
     };
 
     modeloTabla = new DefaultTableModel(columnas, 0) {
@@ -112,8 +111,10 @@ public class Socios extends JPanel {
       tablaSocios.getColumnModel().getColumn(i).setCellRenderer(render);
     }
 
-    tablaSocios.getColumnModel().getColumn(0).setPreferredWidth(50);
-    tablaSocios.getColumnModel().getColumn(2).setPreferredWidth(200);
+    tablaSocios.getColumnModel().getColumn(0).setPreferredWidth(100);
+    tablaSocios.getColumnModel().getColumn(1).setPreferredWidth(150);
+    tablaSocios.getColumnModel().getColumn(2).setPreferredWidth(150);
+    tablaSocios.getColumnModel().getColumn(3).setPreferredWidth(150);
   }
 
   private void cargarSocios() {
@@ -122,9 +123,9 @@ public class Socios extends JPanel {
 
     for (Socio socio : lista) {
       modeloTabla.addRow(new Object[]{
-        socio.getIdSocio(),
-        socio.getRuc(),
-        socio.getRazonSocial(),
+        socio.getCedula(),
+        socio.getNombres(),
+        socio.getApellidos(),
         socio.getTelefono(),
         socio.getCorreo(),
         socio.getDireccion(),
@@ -134,14 +135,17 @@ public class Socios extends JPanel {
   }
 
   private void registrarSocio() {
-    JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
+    JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
     panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-    JLabel lblRuc = new JLabel("RUC:");
-    JTextField txtRuc = new JTextField();
+    JLabel lblCedula = new JLabel("Cédula:");
+    JTextField txtCedula = new JTextField();
 
-    JLabel lblRazonSocial = new JLabel("Razón Social:");
-    JTextField txtRazonSocial = new JTextField();
+    JLabel lblNombres = new JLabel("Nombres:");
+    JTextField txtNombres = new JTextField();
+
+    JLabel lblApellidos = new JLabel("Apellidos:");
+    JTextField txtApellidos = new JTextField();
 
     JLabel lblTelefono = new JLabel("Teléfono:");
     JTextField txtTelefono = new JTextField();
@@ -152,51 +156,48 @@ public class Socios extends JPanel {
     JLabel lblDireccion = new JLabel("Dirección:");
     JTextField txtDireccion = new JTextField();
 
-    panel.add(lblRuc);
-    panel.add(txtRuc);
-    panel.add(lblRazonSocial);
-    panel.add(txtRazonSocial);
-    panel.add(lblTelefono);
-    panel.add(txtTelefono);
-    panel.add(lblCorreo);
-    panel.add(txtCorreo);
-    panel.add(lblDireccion);
-    panel.add(txtDireccion);
+    panel.add(lblCedula); panel.add(txtCedula);
+    panel.add(lblNombres); panel.add(txtNombres);
+    panel.add(lblApellidos); panel.add(txtApellidos);
+    panel.add(lblTelefono); panel.add(txtTelefono);
+    panel.add(lblCorreo); panel.add(txtCorreo);
+    panel.add(lblDireccion); panel.add(txtDireccion);
 
     int resultado = JOptionPane.showConfirmDialog(
       this,
       panel,
-      "Registrar Nuevo Socio",
+      "Registrar Socio",
       JOptionPane.OK_CANCEL_OPTION,
       JOptionPane.PLAIN_MESSAGE
     );
 
     if (resultado == JOptionPane.OK_OPTION) {
-      String ruc = txtRuc.getText().trim();
-      String razonSocial = txtRazonSocial.getText().trim();
+      String cedula = txtCedula.getText().trim();
+      String nombres = txtNombres.getText().trim();
+      String apellidos = txtApellidos.getText().trim();
       String telefono = txtTelefono.getText().trim();
       String correo = txtCorreo.getText().trim();
       String direccion = txtDireccion.getText().trim();
 
       // Validaciones
-      if (ruc.isEmpty() || razonSocial.isEmpty() || telefono.isEmpty() ||
-        correo.isEmpty() || direccion.isEmpty()) {
+      if (cedula.isEmpty() || nombres.isEmpty() || apellidos.isEmpty() ||
+        telefono.isEmpty() || correo.isEmpty() || direccion.isEmpty()) {
         GestorAlertas.mostrarError(this, "Todos los campos son obligatorios");
         return;
       }
 
-      if (!Validaciones.validarRUC(ruc)) {
-        GestorAlertas.mostrarError(this, "RUC inválido. Debe tener 13 dígitos y terminar en 001");
+      if (!Validaciones.validarCédula(cedula)) {
+        GestorAlertas.mostrarError(this, "Cédula inválida");
         return;
       }
 
-      if (gestorSocios.existeRuc(ruc)) {
-        GestorAlertas.mostrarError(this, "El RUC ya está registrado en el sistema");
+      if (gestorSocios.existeCedula(cedula)) {
+        GestorAlertas.mostrarError(this, "Cédula ya está registrada en el sistema");
         return;
       }
 
       if (!Validaciones.validarTelefono(telefono)) {
-        GestorAlertas.mostrarError(this, "Teléfono inválido. Debe tener 10 dígitos y empezar con 09");
+        GestorAlertas.mostrarError(this, "Teléfono inválido");
         return;
       }
 
@@ -205,29 +206,12 @@ public class Socios extends JPanel {
         return;
       }
 
-      if (razonSocial.length() > 150) {
-        GestorAlertas.mostrarError(this, "Razón Social no puede exceder 150 caracteres");
-        return;
-      }
-
-      if (direccion.length() > 200) {
-        GestorAlertas.mostrarError(this, "Dirección no puede exceder 200 caracteres");
-        return;
-      }
-
-      Socio nuevoSocio = new Socio(ruc, razonSocial, direccion, telefono, correo);
+      Socio nuevoSocio = new Socio(cedula, nombres, apellidos, direccion, telefono, correo);
       nuevoSocio.setUsuarioRegistro(usuarioActual.getUsername());
 
       if (gestorSocios.crearSocio(nuevoSocio)) {
         GestorAlertas.mostrarExito(this, "Socio registrado exitosamente");
-        /*
-        Auditoría.registrarAccion(
-          usuarioActual.getUsername(),
-          usuarioActual.getNombre() + " " + usuarioActual.getApellido(),
-          "Socios",
-          "Registró nuevo socio"
-        );
-        */
+
         cargarSocios();
       } else {
         GestorAlertas.mostrarError(this, "Error al registrar el socio");
@@ -242,25 +226,31 @@ public class Socios extends JPanel {
       return;
     }
 
-    int idSocio = (int) modeloTabla.getValueAt(fila, 0);
-    String rucActual = (String) modeloTabla.getValueAt(fila, 1);
+    String cedulaActual = (String) modeloTabla.getValueAt(fila, 1);
+    Socio socio = gestorSocios.buscarPorCedula(cedulaActual);
 
-    Socio socio = gestorSocios.buscarPorRuc(rucActual);
     if (socio == null) {
       GestorAlertas.mostrarError(this, "Error al cargar los datos del socio");
       return;
     }
 
-    JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
+    JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
     panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-    JLabel lblRuc = new JLabel("RUC:");
-    JTextField txtRuc = new JTextField(socio.getRuc());
-    txtRuc.setEditable(false);
-    txtRuc.setBackground(Color.LIGHT_GRAY);
+    JLabel lblCedula = new JLabel("Cédula:");
+    JTextField txtCedula = new JTextField(socio.getCedula());
+    txtCedula.setEditable(false);
+    txtCedula.setBackground(Color.LIGHT_GRAY);
 
-    JLabel lblRazonSocial = new JLabel("Razón Social:");
-    JTextField txtRazonSocial = new JTextField(socio.getRazonSocial());
+    JLabel lblNombres = new JLabel("Nombres:");
+    JTextField txtNombres = new JTextField(socio.getNombres());
+    txtNombres.setEditable(false);
+    txtNombres.setBackground(Color.LIGHT_GRAY);
+
+    JLabel lblApellidos = new JLabel("Apellidos:");
+    JTextField txtApellidos = new JTextField(socio.getApellidos());
+    txtApellidos.setEditable(false);
+    txtApellidos.setBackground(Color.LIGHT_GRAY);
 
     JLabel lblTelefono = new JLabel("Teléfono:");
     JTextField txtTelefono = new JTextField(socio.getTelefono());
@@ -271,34 +261,23 @@ public class Socios extends JPanel {
     JLabel lblDireccion = new JLabel("Dirección:");
     JTextField txtDireccion = new JTextField(socio.getDireccion());
 
-    panel.add(lblRuc);
-    panel.add(txtRuc);
-    panel.add(lblRazonSocial);
-    panel.add(txtRazonSocial);
-    panel.add(lblTelefono);
-    panel.add(txtTelefono);
-    panel.add(lblCorreo);
-    panel.add(txtCorreo);
-    panel.add(lblDireccion);
-    panel.add(txtDireccion);
+    panel.add(lblCedula); panel.add(txtCedula);
+    panel.add(lblNombres); panel.add(txtNombres);
+    panel.add(lblApellidos); panel.add(txtApellidos);
+    panel.add(lblTelefono); panel.add(txtTelefono);
+    panel.add(lblCorreo); panel.add(txtCorreo);
+    panel.add(lblDireccion); panel.add(txtDireccion);
 
-    int resultado = JOptionPane.showConfirmDialog(
-      this,
-      panel,
-      "Actualizar Datos del Socio",
-      JOptionPane.OK_CANCEL_OPTION,
-      JOptionPane.PLAIN_MESSAGE
-    );
+    int resultado = JOptionPane.showConfirmDialog(this, panel,
+      "Actualizar Datos", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
     if (resultado == JOptionPane.OK_OPTION) {
-      String razonSocial = txtRazonSocial.getText().trim();
       String telefono = txtTelefono.getText().trim();
       String correo = txtCorreo.getText().trim();
       String direccion = txtDireccion.getText().trim();
 
-      // Validaciones
-      if (razonSocial.isEmpty() || telefono.isEmpty() || correo.isEmpty() || direccion.isEmpty()) {
-        GestorAlertas.mostrarError(this, "Todos los campos son obligatorios");
+      if (telefono.isEmpty() || correo.isEmpty() || direccion.isEmpty()) {
+        GestorAlertas.mostrarError(this, "Los campos de contacto son obligatorios");
         return;
       }
 
@@ -312,22 +291,12 @@ public class Socios extends JPanel {
         return;
       }
 
-      socio.setRazonSocial(razonSocial);
       socio.setTelefono(telefono);
       socio.setCorreo(correo);
       socio.setDireccion(direccion);
 
       if (gestorSocios.actualizarSocio(socio)) {
-        GestorAlertas.mostrarExito(this, "Datos actualizados correctamente");
-
-        /*
-        Auditoría.registrarAccion(
-          usuarioActual.getUsername(),
-          usuarioActual.getNombre() + " " + usuarioActual.getApellido(),
-          "Socios",
-          "Actualizó datos del socio: " + socio.getRazonSocial()
-        );
-         */
+        GestorAlertas.mostrarExito(this, "Datos actualizados exitosamente");
         cargarSocios();
       } else {
         GestorAlertas.mostrarError(this, "Error al actualizar los datos");
@@ -338,8 +307,8 @@ public class Socios extends JPanel {
   private void consultarSocio() {
     String busqueda = JOptionPane.showInputDialog(
       this,
-      "Ingrese RUC o nombre del socio:",
-      "Buscar Socio",
+      "Ingrese Cédula o nombre del socio:",
+      "Consultar Socio",
       JOptionPane.PLAIN_MESSAGE
     );
 
@@ -349,15 +318,14 @@ public class Socios extends JPanel {
 
     busqueda = busqueda.trim();
 
-    if (busqueda.length() == 13 && busqueda.matches("^[0-9]+$")) {
-      Socio socio = gestorSocios.buscarPorRuc(busqueda);
+    if (busqueda.length() == 10 && busqueda.matches("^[0-9]+$")) {
+      Socio socio = gestorSocios.buscarPorCedula(busqueda);
       if (socio != null) {
         mostrarDetallesSocio(socio);
       } else {
-        GestorAlertas.mostrarError(this, "No se encontró un socio con ese RUC");
+        GestorAlertas.mostrarError(this, "No se encontró un socio con esa Cédula");
       }
     } else {
-
       List<Socio> resultados = gestorSocios.buscarPorNombre(busqueda);
       if (resultados.isEmpty()) {
         GestorAlertas.mostrarError(this, "No se encontraron socios con ese nombre");
@@ -373,8 +341,9 @@ public class Socios extends JPanel {
     DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     StringBuilder detalles = new StringBuilder();
-    detalles.append("RUC: ").append(socio.getRuc()).append("\n");
-    detalles.append("Razón Social: ").append(socio.getRazonSocial()).append("\n");
+    detalles.append("Cédula: ").append(socio.getCedula()).append("\n");
+    detalles.append("Nombres: ").append(socio.getNombres()).append("\n");
+    detalles.append("Apellidos: ").append(socio.getApellidos()).append("\n");
     detalles.append("Teléfono: ").append(socio.getTelefono()).append("\n");
     detalles.append("Correo: ").append(socio.getCorreo()).append("\n");
     detalles.append("Dirección: ").append(socio.getDireccion()).append("\n");
@@ -386,16 +355,13 @@ public class Socios extends JPanel {
     if (socio.getFechaModificacion() != null) {
       detalles.append("Última Modificación: ").append(socio.getFechaModificacion().format(fmt)).append("\n");
     }
-    if (socio.getUsuarioRegistro() != null) {
-      detalles.append("Registrado por: ").append(socio.getUsuarioRegistro()).append("\n");
-    }
 
     JTextArea textArea = new JTextArea(detalles.toString());
     textArea.setEditable(false);
     textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 
     JScrollPane scrollPane = new JScrollPane(textArea);
-    scrollPane.setPreferredSize(new Dimension(400, 250));
+    scrollPane.setPreferredSize(new Dimension(400, 300));
 
     JOptionPane.showMessageDialog(
       this,
@@ -408,7 +374,8 @@ public class Socios extends JPanel {
   private void mostrarResultadosBusqueda(List<Socio> resultados) {
     String[] opciones = new String[resultados.size()];
     for (int i = 0; i < resultados.size(); i++) {
-      opciones[i] = resultados.get(i).getRazonSocial() + " (" + resultados.get(i).getRuc() + ")";
+      opciones[i] = resultados.get(i).getNombres() + " " + resultados.get(i).getApellidos() +
+        " (" + resultados.get(i).getCedula() + ")";
     }
 
     String seleccion = (String) JOptionPane.showInputDialog(
@@ -423,7 +390,8 @@ public class Socios extends JPanel {
 
     if (seleccion != null) {
       for (Socio socio : resultados) {
-        String opcion = socio.getRazonSocial() + " (" + socio.getRuc() + ")";
+        String opcion = socio.getNombres() + " " + socio.getApellidos() +
+          " (" + socio.getCedula() + ")";
         if (opcion.equals(seleccion)) {
           mostrarDetallesSocio(socio);
           break;
@@ -440,32 +408,26 @@ public class Socios extends JPanel {
     }
 
     int idSocio = (int) modeloTabla.getValueAt(fila, 0);
-    String razonSocial = (String) modeloTabla.getValueAt(fila, 2);
-    String estadoActual = (String) modeloTabla.getValueAt(fila, 6);
+    String nombres = (String) modeloTabla.getValueAt(fila, 2);
+    String apellidos = (String) modeloTabla.getValueAt(fila, 3);
+
+    String estadoActual = (String) modeloTabla.getValueAt(fila, 7);
 
     boolean nuevoEstado = estadoActual.equals("Inactivo");
     String accion = nuevoEstado ? "activar" : "desactivar";
+    String nombreCompleto = nombres + " " + apellidos;
 
     int confirmacion = JOptionPane.showConfirmDialog(
       this,
-      "¿Está seguro de " + accion + " el socio " + razonSocial + "?",
-      "Confirmar Cambio de Estado",
+      "¿Está seguro de " + accion + " el socio " + nombreCompleto + "?",
+      "Cambiar Estado",
       JOptionPane.YES_NO_OPTION,
       JOptionPane.PLAIN_MESSAGE
     );
 
     if (confirmacion == JOptionPane.YES_OPTION) {
       if (gestorSocios.cambiarEstado(idSocio, nuevoEstado)) {
-        GestorAlertas.mostrarExito(this, "Estado actualizado correctamente");
-
-        // Registrar en auditoría
-        Auditoría.registrarAccion(
-          usuarioActual.getUsername(),
-          usuarioActual.getNombre() + " " + usuarioActual.getApellido(),
-          "Socios",
-          "Cambió estado del socio: " + razonSocial + " a " + (nuevoEstado ? "Activo" : "Inactivo")
-        );
-
+        GestorAlertas.mostrarExito(this, "Estado actualizado exitosamente");
         cargarSocios();
       } else {
         GestorAlertas.mostrarError(this, "Error al cambiar el estado");
@@ -473,7 +435,6 @@ public class Socios extends JPanel {
     }
   }
 
-  // ==================== ELIMINAR SOCIO ====================
   private void eliminarSocio() {
     int fila = tablaSocios.getSelectedRow();
     if (fila < 0) {
@@ -482,33 +443,24 @@ public class Socios extends JPanel {
     }
 
     int idSocio = (int) modeloTabla.getValueAt(fila, 0);
-    String razonSocial = (String) modeloTabla.getValueAt(fila, 2);
+    String nombres = (String) modeloTabla.getValueAt(fila, 2);
+    String apellidos = (String) modeloTabla.getValueAt(fila, 3);
+    String nombreCompleto = nombres + " " + apellidos;
 
     int confirmacion = JOptionPane.showConfirmDialog(
       this,
-      "¿Está seguro de eliminar el socio " + razonSocial + "?\n" +
-        "Esta acción no se puede deshacer.",
-      "Confirmar Eliminación",
+      "¿Está seguro de eliminar el socio " + nombreCompleto + " ?",
+      "Eliminar Socio",
       JOptionPane.YES_NO_OPTION,
-      JOptionPane.WARNING_MESSAGE
+      JOptionPane.PLAIN_MESSAGE //JOptionPane.WARNING_MESSAGE
     );
 
     if (confirmacion == JOptionPane.YES_OPTION) {
       if (gestorSocios.eliminarSocio(idSocio)) {
-        GestorAlertas.mostrarExito(this, "Socio eliminado correctamente");
-
-        // Registrar en auditoría
-        Auditoría.registrarAccion(
-          usuarioActual.getUsername(),
-          usuarioActual.getNombre() + " " + usuarioActual.getApellido(),
-          "Socios",
-          "Eliminó el socio: " + razonSocial
-        );
-
+        GestorAlertas.mostrarExito(this, "Socio eliminado exitosamente");
         cargarSocios();
       } else {
-        GestorAlertas.mostrarError(this, "Error al eliminar el socio.\n" +
-          "Puede que tenga servicios asociados.");
+        GestorAlertas.mostrarError(this, "Error al eliminar el socio");
       }
     }
   }
