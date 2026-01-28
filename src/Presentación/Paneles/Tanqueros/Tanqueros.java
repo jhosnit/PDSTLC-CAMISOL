@@ -184,7 +184,7 @@ public class Tanqueros extends JPanel {
       }
 
       if (!Validaciones.validarPlaca(placa)) {
-        GestorAlertas.mostrarError(this, "Placa inválida ");
+        GestorAlertas.mostrarError(this, "Placa inválida");
         return;
       }
       if (gestorTanqueros.existePlaca(placa)) {
@@ -432,7 +432,8 @@ public class Tanqueros extends JPanel {
       }
 
       GestorAlertas.mostrarExito(this, "Asignación realizada con éxito");
-      GestorAlertas.mostrarExito(this, placa + " -> " + nombreSocio);
+      GestorAlertas.mostrarExito(this, placa + " -- " + nombreSocio);
     }
   }
+
 }
