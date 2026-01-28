@@ -32,7 +32,7 @@ public class VentanaInicio extends JFrame {
   }
 
   private void inicializarComponentes() {
-    setTitle("Sistema de Transporte Lácteos CAMISOL.S.A - Iniciar Sesión");
+    setTitle("Sistema de Transporte Lácteos para la Cooperativa CAMISOL.S.A - Iniciar Sesión");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setResizable(false);
     setIconImage(new ImageIcon("src/Presentación/Recursos/Icono.png").getImage());
@@ -97,7 +97,7 @@ public class VentanaInicio extends JFrame {
     contenido.add(Box.createRigidArea(new Dimension(0, 10)));
 
     // Texto de la empresa
-    JLabel lblBienvenida = new JLabel("<html><center>Sistema de Transporte<br>de Lácteos CAMISOL S.A.</center></html>");
+    JLabel lblBienvenida = new JLabel("<html><center>Sistema de Transporte de Lácteos <br> para la Cooperativa CAMISOL S.A.</center></html>");
     lblBienvenida.setFont(new Font("Segoe UI", Font.BOLD, 28));
     lblBienvenida.setForeground(Color.WHITE);
     lblBienvenida.setAlignmentX(Component.CENTER_ALIGNMENT);

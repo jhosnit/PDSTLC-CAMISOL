@@ -1,11 +1,14 @@
 package Presentación.Ventanas;
 
 import Logica.Entidades.Usuario;
+import Logica.Gestores.GestorSocios;
+import Logica.Gestores.GestorTanqueros;
+import Logica.Gestores.GestorTransporte;
 import Presentación.Paneles.Administración.Administración;
 import Presentación.Paneles.Auditoría.Auditoría;
-import Presentación.Paneles.Socios.Tanqueros.Tanquero;
+import Presentación.Paneles.Tanqueros.Tanqueros;
 import Presentación.Paneles.Socios.Socios;
-import Presentación.Paneles.Transporte.Transporte;
+import Presentación.Paneles.Transporte.TransportePanel;
 import Presentación.Recursos.Botón;
 import Logica.Gestores.GestorAlertas;
 
@@ -25,17 +28,23 @@ public class VentanaPrincipal extends JFrame {
   private JPanel panelContenido;
   private JPanel panelMenú;
 
+  private GestorSocios gestorSocios;
+  private GestorTanqueros gestorTanqueros;
+  private GestorTransporte gestorTransporte;
+
   private Botón botónInicio;
   private Botón botónAdmin;
   private Botón botónAuditoría;
-  private Botón botónCliente;
-  private Botón botónServicio;
-  private Botón botónProveedor;
-  private Botón botónTanquero;
+  private Botón botónSocios;
+  private Botón botónTanqueros;
+  private Botón botónTransporte;
   private Botón botónSalir;
 
   public VentanaPrincipal(Usuario usuario) {
     this.usuario = usuario;
+    this.gestorSocios = new GestorSocios();
+    this.gestorTanqueros = new GestorTanqueros();
+    this.gestorTransporte = new GestorTransporte();
     inicializarComponentes();
     configurarVentana();
     iniciarReloj();
@@ -146,32 +155,27 @@ public class VentanaPrincipal extends JFrame {
     JLabel lbl = new JLabel("PRINCIPAL");
     lbl.setFont(new Font("Segoe UI", Font.BOLD, 11));
     lbl.setForeground(new Color(107, 114, 128));
-    lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
-    lbl.setBorder(new EmptyBorder(0, 5, 10, 0));
     lbl.setAlignmentX(Component.CENTER_ALIGNMENT);
+    lbl.setBorder(new EmptyBorder(0, 5, 10, 0));
     menu.add(lbl);
 
     botónInicio = Botón.crearBotónMenu("Inicio", null);
-    botónCliente = Botón.crearBotónMenu("Clientes", null);
-    botónTanquero = Botón.crearBotónMenu("Tanqueros", null);
-    botónProveedor = Botón.crearBotónMenu("Proveedores", null);
-    botónServicio = Botón.crearBotónMenu("Servicios", null);
+    botónSocios = Botón.crearBotónMenu("Socios", null);
+    botónTanqueros = Botón.crearBotónMenu("Tanqueros", null);
+    botónTransporte = Botón.crearBotónMenu("Transporte", null);
 
     botónInicio.setAlignmentX(Component.CENTER_ALIGNMENT);
-    botónCliente.setAlignmentX(Component.CENTER_ALIGNMENT);
-    botónTanquero.setAlignmentX(Component.CENTER_ALIGNMENT);
-    botónProveedor.setAlignmentX(Component.CENTER_ALIGNMENT);
-    botónServicio.setAlignmentX(Component.CENTER_ALIGNMENT);
+    botónSocios.setAlignmentX(Component.CENTER_ALIGNMENT);
+    botónTanqueros.setAlignmentX(Component.CENTER_ALIGNMENT);
+    botónTransporte.setAlignmentX(Component.CENTER_ALIGNMENT);
 
     menu.add(botónInicio);
     menu.add(Box.createVerticalStrut(5));
-    menu.add(botónCliente);
+    menu.add(botónSocios);
     menu.add(Box.createVerticalStrut(5));
-    menu.add(botónTanquero);
+    menu.add(botónTanqueros);
     menu.add(Box.createVerticalStrut(5));
-    menu.add(botónProveedor);
-    menu.add(Box.createVerticalStrut(5));
-    menu.add(botónServicio);
+    menu.add(botónTransporte);
     menu.add(Box.createVerticalStrut(15));
 
     // Solo para administrador
@@ -179,9 +183,8 @@ public class VentanaPrincipal extends JFrame {
       JLabel lbs = new JLabel("SISTEMA");
       lbs.setFont(new Font("Segoe UI", Font.BOLD, 11));
       lbs.setForeground(new Color(107, 114, 128));
-      lbs.setAlignmentX(Component.LEFT_ALIGNMENT);
-      lbs.setBorder(new EmptyBorder(0, 5, 10, 0));
       lbs.setAlignmentX(Component.CENTER_ALIGNMENT);
+      lbs.setBorder(new EmptyBorder(0, 5, 10, 0));
       menu.add(lbs);
 
       botónAdmin = Botón.crearBotónMenu("Administración", null);
@@ -209,10 +212,9 @@ public class VentanaPrincipal extends JFrame {
 
   private void asignarEventos() {
     botónInicio.addActionListener(e -> mostrarInicio());
-    botónCliente.addActionListener(e -> cambiarPanel("CLIENTES", new Socios()));
-    botónServicio.addActionListener(e -> cambiarPanel("SERVICIOS", new Transporte()));
-    botónProveedor.addActionListener(e -> cambiarPanel("PROVEEDORES", null));
-    botónTanquero.addActionListener(e -> cambiarPanel("TANQUEROS", new Tanquero()));
+    botónSocios.addActionListener(e -> cambiarPanel("SOCIOS", new Socios(usuario)));
+    botónTanqueros.addActionListener(e -> cambiarPanel("TANQUEROS", new Tanqueros(usuario)));
+    botónTransporte.addActionListener(e -> cambiarPanel("TRANSPORTE",new TransportePanel(usuario)));
 
     if (usuario.getRol().equalsIgnoreCase("ADMINISTRADOR")) {
       botónAdmin.addActionListener(e -> cambiarPanel("ADMINISTRACIÓN", new Administración(usuario)));
@@ -250,15 +252,39 @@ public class VentanaPrincipal extends JFrame {
     etiquetaTítulo.setText("INICIO");
     panelContenido.removeAll();
 
-    JPanel dashboard = new JPanel(new GridLayout(2, 3, 20, 20));
+    // Obtener datos reales de la base de datos
+    int viajesActivos = gestorTransporte.contarViajesActivos();
+    int totalSocios = gestorSocios.contarSociosActivos();
+    int totalTanqueros = gestorTanqueros.contarTanquerosActivos();
+    int alertas = 2;
+
+    // Dashboard con 4 tarjetas en 2x2
+    JPanel dashboard = new JPanel(new GridLayout(2, 2, 20, 20));
     dashboard.setBackground(new Color(18, 18, 18));
 
-    dashboard.add(crearTarjetaEstadistica("15,400", "Litros Hoy", new Color(0, 22, 141)));
-    dashboard.add(crearTarjetaEstadistica("8", "Viajes Activos", new Color(234, 177, 0)));
-    dashboard.add(crearTarjetaEstadistica("124", "Clientes", new Color(40, 167, 69)));
-    dashboard.add(crearTarjetaEstadistica("23", "Tanqueros", new Color(70, 128, 139)));
-    dashboard.add(crearTarjetaEstadistica("$12,450", "Servicio Hoy", new Color(168, 85, 247)));
-    dashboard.add(crearTarjetaEstadistica("0", "Alertas", new Color(239, 68, 68)));
+    dashboard.add(crearTarjetaEstadistica(
+      String.valueOf(viajesActivos),
+      "Viajes Activos",
+      new Color(234, 177, 0)
+    ));
+
+    dashboard.add(crearTarjetaEstadistica(
+      String.valueOf(totalSocios),
+      "Socios Activos",
+      new Color(40, 167, 69)
+    ));
+
+    dashboard.add(crearTarjetaEstadistica(
+      String.valueOf(totalTanqueros),
+      "Tanqueros Activos",
+      new Color(70, 128, 139)
+    ));
+
+    dashboard.add(crearTarjetaEstadistica(
+      String.valueOf(alertas),
+      "Alertas",
+      alertas > 0 ? new Color(239, 68, 68) : new Color(40, 167, 69)
+    ));
 
     panelContenido.add(dashboard, BorderLayout.CENTER);
     panelContenido.revalidate();
