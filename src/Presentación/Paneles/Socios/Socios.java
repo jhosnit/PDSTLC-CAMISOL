@@ -358,7 +358,7 @@ public class Socios extends JPanel {
 
     JTextArea textArea = new JTextArea(detalles.toString());
     textArea.setEditable(false);
-    textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+    textArea.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 
     JScrollPane scrollPane = new JScrollPane(textArea);
     scrollPane.setPreferredSize(new Dimension(400, 300));

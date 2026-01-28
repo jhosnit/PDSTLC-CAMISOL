@@ -333,6 +333,8 @@ public class Tanqueros extends JPanel {
       return;
     }
 
+
+    int idTanquero = gestorTanqueros.obtenerIdPorPlaca((String) modelo.getValueAt(fila, 0));
     String placa = (String) modelo.getValueAt(fila, 0);
 
     int confirmacion = JOptionPane.showConfirmDialog(
@@ -345,15 +347,13 @@ public class Tanqueros extends JPanel {
 
     if (confirmacion == JOptionPane.YES_OPTION) {
 
-      Tanquero t = gestorTanqueros.buscarPorPlaca(placa);
-      if (gestorTanqueros.eliminarTanquero(t.getIdTanquero())) {
-        GestorAlertas.mostrarExito(this, "Vehículo eliminado correctamente");
+      if (gestorTanqueros.eliminarTanquero(idTanquero)) {
+        GestorAlertas.mostrarExito(this, "Vehículo eliminado exitosamente");
         cargarDatosBD();
       }
     }
   }
 
-  // ======================== ASIGNAR CHOFER (Estilo Integrado) ========================
   private void asignarChofer() {
     int fila = tabla.getSelectedRow();
     String placaPreseleccionada = (fila >= 0) ? (String) modelo.getValueAt(fila, 0) : "";
@@ -364,11 +364,12 @@ public class Tanqueros extends JPanel {
     JLabel lblPlaca = new JLabel("Placa Tanquero:");
     JTextField txtPlaca = new JTextField(placaPreseleccionada);
 
-    JLabel lblCedula = new JLabel("Cédula Chofer:");
+    JLabel lblCedula = new JLabel("Cédula Socio:");
     JTextField txtCedula = new JTextField();
+    txtCedula.setPreferredSize(new Dimension(150, 20));
 
     JLabel lblNombre = new JLabel("Nombre Socio:");
-    JLabel lblResultadoNombre = new JLabel("---");
+    JLabel lblResultadoNombre = new JLabel("----------------------------------------------------------------------");
     lblResultadoNombre.setForeground(Color.GRAY);
 
     JLabel lblFecha = new JLabel("Fecha Asignación:");
@@ -376,10 +377,9 @@ public class Tanqueros extends JPanel {
     txtFecha.setEditable(false);
     txtFecha.setBackground(Color.LIGHT_GRAY);
 
-    // Panel anidado para la fila de búsqueda de Cédula
     JPanel panelBusqueda = new JPanel(new BorderLayout(5, 0));
     JButton btnBuscar = new JButton("Buscar");
-    btnBuscar.setPreferredSize(new Dimension(75, 25));
+    btnBuscar.setPreferredSize(new Dimension(75, 20));
     panelBusqueda.add(txtCedula, BorderLayout.CENTER);
     panelBusqueda.add(btnBuscar, BorderLayout.EAST);
 
@@ -402,9 +402,9 @@ public class Tanqueros extends JPanel {
         Socio s = gestorSocios.buscarPorCedula(cedula);
         if (s != null) {
           lblResultadoNombre.setText(s.getNombres() + " " + s.getApellidos());
-          lblResultadoNombre.setForeground(new Color(40, 167, 69)); // Verde
+          lblResultadoNombre.setForeground(new Color(40, 167, 69));
         } else {
-          lblResultadoNombre.setText("NO ENCONTRADO");
+          lblResultadoNombre.setText("No encontrado");
           lblResultadoNombre.setForeground(Color.RED);
         }
       }
@@ -413,7 +413,7 @@ public class Tanqueros extends JPanel {
     int res = JOptionPane.showConfirmDialog(
       this,
       panel,
-      "Asignar Chofer a Vehículo",
+      "Asignar Socio a Vehículo",
       JOptionPane.OK_CANCEL_OPTION,
       JOptionPane.PLAIN_MESSAGE
     );
@@ -423,16 +423,16 @@ public class Tanqueros extends JPanel {
       String nombreSocio = lblResultadoNombre.getText();
 
       if (!gestorTanqueros.existePlaca(placa)) {
-        GestorAlertas.mostrarError(this, "La placa ingresada no existe.");
+        GestorAlertas.mostrarError(this, "La placa ingresada no existe");
         return;
       }
-      if (nombreSocio.equals("---") || nombreSocio.equals("NO ENCONTRADO")) {
-        GestorAlertas.mostrarError(this, "Debe buscar y seleccionar un socio válido.");
+      if (nombreSocio.equals("----------------------------------------------------------------------") || nombreSocio.equals("No encontrado")) {
+        GestorAlertas.mostrarError(this, "Debe buscar y seleccionar un socio válido");
         return;
       }
 
-      // Aquí guardarías la asignación en BD
-      GestorAlertas.mostrarExito(this, "Asignación realizada con éxito:\n" + placa + " -> " + nombreSocio);
+      GestorAlertas.mostrarExito(this, "Asignación realizada con éxito");
+      GestorAlertas.mostrarExito(this, placa + " -> " + nombreSocio);
     }
   }
 }
