@@ -2,12 +2,10 @@ package Logica.Utilidades;
 
 public class Validaciones {
 
-  // ================= VALIDACIÓN DE CÉDULA (ANEXO 3) =================
-
   public static boolean validarCédula(String cédulaAVerificar) {
     return validarLongitud(cédulaAVerificar)
       && validarDígitosIniciales(cédulaAVerificar)
-      && validarDígitosNuméricos(cédulaAVerificar) // Validación básica de números
+      && validarDígitosNuméricos(cédulaAVerificar)
       && validarTercerDígito(cédulaAVerificar)
       && validarDígitoVerificador(cédulaAVerificar);
   }
@@ -49,7 +47,6 @@ public class Validaciones {
       suma += valor;
     }
 
-    // Lógica corregida para el dígito verificador
     int residuo = suma % 10;
     int digitoVerificadorCalculado = (residuo == 0) ? 0 : (10 - residuo);
 
@@ -57,8 +54,6 @@ public class Validaciones {
 
     return digitoVerificadorCalculado == digitoVerificadorReal;
   }
-
-  // ================= VALIDACIÓN DE RUC (ANEXO 1) =================
 
   public static boolean validarRUC(String ruc) {
     if (ruc == null || ruc.length() != 13) {
@@ -74,8 +69,6 @@ public class Validaciones {
     return validarCédula(cedulaParte);
   }
 
-  // ================= VALIDACIÓN DE CORREO (ANEXO 4) =================
-
   public static boolean validarCorreo(String correo) {
     if (correo == null || correo.trim().isEmpty()) {
       return false;
@@ -85,8 +78,6 @@ public class Validaciones {
     String regexCorreo = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
     return correo.matches(regexCorreo);
   }
-
-  // ================= VALIDACIÓN DE TELÉFONO =================
 
   public static boolean validarTelefono(String telefono) {
     if (telefono == null || telefono.length() != 10) {
@@ -100,8 +91,6 @@ public class Validaciones {
     return telefono.matches("^[0-9]+$");
   }
 
-  // ================= VALIDACIÓN DE PLACA (ANEXO 6) =================
-
   public static boolean validarPlaca(String placa) {
     if (placa == null) {
       return false;
@@ -111,8 +100,7 @@ public class Validaciones {
     if (!placa.matches("^[A-Z]{3}-[0-9]{3,4}$")) {
       return false;
     }
-
-    // Validar primera letra según provincias (Anexo 6 del PDF)
+    
     char primeraLetra = placa.charAt(0);
     String provinciasValidas = "ABCEGHIJKLMNOPQRSTUVWXYZ"; // Lista de códigos de provincias
 

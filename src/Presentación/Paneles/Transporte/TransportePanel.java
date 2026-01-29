@@ -20,6 +20,7 @@ public class TransportePanel extends JPanel {
 
   private JTable tablaViajes;
   private DefaultTableModel modeloTabla;
+  private List<Transporte> listaViajes;
 
   private GestorTransporte gestorTransporte;
   private GestorTanqueros gestorTanqueros;
@@ -43,11 +44,10 @@ public class TransportePanel extends JPanel {
     setBackground(new Color(18, 18, 18));
     setBorder(new EmptyBorder(10, 10, 10, 10));
 
-    // --- Panel Superior (Botones) ---
     JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
     panelBotones.setOpaque(false);
 
-    btnNuevoViaje = new Botón("Nuevo Viaje", new Color(40, 167, 69));
+    btnNuevoViaje = new Botón("Nuevo Destino", new Color(40, 167, 69));
     btnCambiarEstado = new Botón("Cambiar Estado", new Color(234, 177, 0));
     btnConsultar = new Botón("Consultar", new Color(70, 128, 139));
     btnEliminar = new Botón("Eliminar", new Color(239, 68, 68));
@@ -67,14 +67,15 @@ public class TransportePanel extends JPanel {
     panelBotones.add(btnActualizar);
     add(panelBotones, BorderLayout.NORTH);
 
-    // --- Tabla ---
     String[] columnas = {
-      "ID", "Fecha", "Tanquero", "Chofer", "Cliente", "Destino", "Litros", "Ocupación", "Flete ($)", "Estado"
+      "Fecha", "Tanquero", "Chofer", "Cliente", "Destino", "Litros", "Ocupación", "Flete ($)", "Estado"
     };
 
     modeloTabla = new DefaultTableModel(columnas, 0) {
       @Override
-      public boolean isCellEditable(int row, int column) { return false; }
+      public boolean isCellEditable(int row, int column) {
+        return false;
+      }
     };
 
     tablaViajes = new JTable(modeloTabla);
@@ -85,7 +86,6 @@ public class TransportePanel extends JPanel {
     scroll.setBorder(new LineBorder(new Color(55, 65, 81), 1));
     add(scroll, BorderLayout.CENTER);
 
-    // --- Eventos ---
     btnNuevoViaje.addActionListener(e -> abrirDialogoNuevoViaje());
     btnCambiarEstado.addActionListener(e -> cambiarEstadoViaje());
     btnConsultar.addActionListener(e -> consultarViaje());
@@ -118,21 +118,20 @@ public class TransportePanel extends JPanel {
     }
 
     // Ajustar anchos
-    tablaViajes.getColumnModel().getColumn(0).setPreferredWidth(40); // ID
-    tablaViajes.getColumnModel().getColumn(1).setPreferredWidth(90); // Fecha
+    tablaViajes.getColumnModel().getColumn(0).setPreferredWidth(90); // ID
+    tablaViajes.getColumnModel().getColumn(1).setPreferredWidth(100); // Fecha
     tablaViajes.getColumnModel().getColumn(2).setPreferredWidth(100); // Tanquero
   }
 
   private void cargarViajes() {
     modeloTabla.setRowCount(0);
-    List<Transporte> lista = gestorTransporte.listarViajes();
+    listaViajes = gestorTransporte.listarViajes();
     DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    for (Transporte t : lista) {
+    for (Transporte t : listaViajes) {
       String cliente = (t.getCliente() != null) ? t.getCliente().getRazonSocial() : "N/A";
 
       modeloTabla.addRow(new Object[]{
-        t.getIdTransporte(),
         t.getFechaAsignacion().format(fmt),
         t.getTanquero().getPlaca(),
         t.getSocio().getNombres() + " " + t.getSocio().getApellidos(),
@@ -146,22 +145,18 @@ public class TransportePanel extends JPanel {
     }
   }
 
-  // ================== DIÁLOGO REGISTRAR VIAJE (ESTILO SOCIOS) ==================
   private void abrirDialogoNuevoViaje() {
-    // Cargar cliente por defecto
     GestorClientes gestorClientes = new GestorClientes();
     Cliente clienteDefecto = gestorClientes.obtenerClientePorDefecto();
 
     if (clienteDefecto == null) {
-      GestorAlertas.mostrarError(this, "Error: No se encontró el cliente ECUAJUGOS.\nVerifique el registro con RUC 0990318735001");
+      GestorAlertas.mostrarError(this, "No se encontró el cliente ECUAJUGOS");
       return;
     }
 
-    // PANEL PRINCIPAL con GridLayout (igual que Socios)
     JPanel panel = new JPanel(new GridLayout(8, 2, 10, 10));
     panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-    // 1. Selector de Tanquero
     JLabel lblTanquero = new JLabel("Tanquero:");
     JComboBox<String> comboTanqueros = new JComboBox<>();
     List<Tanquero> listaTanqueros = gestorTanqueros.listarTanqueros();
@@ -171,8 +166,8 @@ public class TransportePanel extends JPanel {
       }
     }
 
-    // 2. Selector de Chofer
-    JLabel lblChofer = new JLabel("Chofer:");
+
+    JLabel lblChofer = new JLabel("Socio:");
     JComboBox<String> comboSocios = new JComboBox<>();
     List<Socio> listaSocios = gestorSocios.listarSocios();
     for (Socio s : listaSocios) {
@@ -181,15 +176,13 @@ public class TransportePanel extends JPanel {
       }
     }
 
-    // 3. Cliente (no editable)
     JLabel lblCliente = new JLabel("Cliente:");
     JTextField txtCliente = new JTextField(clienteDefecto.getRazonSocial());
     txtCliente.setEditable(false);
     txtCliente.setBackground(Color.LIGHT_GRAY);
 
-    // 4. Rutas y datos
     JLabel lblOrigen = new JLabel("Ruta Origen:");
-    JTextField txtOrigen = new JTextField("Planta Central");
+    JTextField txtOrigen = new JTextField();
 
     JLabel lblDestino = new JLabel("Ruta Destino:");
     JTextField txtDestino = new JTextField();
@@ -203,17 +196,24 @@ public class TransportePanel extends JPanel {
     JLabel lblObservaciones = new JLabel("Observaciones:");
     JTextField txtObservaciones = new JTextField();
 
-    // Agregar componentes al panel
-    panel.add(lblTanquero); panel.add(comboTanqueros);
-    panel.add(lblChofer); panel.add(comboSocios);
-    panel.add(lblCliente); panel.add(txtCliente);
-    panel.add(lblOrigen); panel.add(txtOrigen);
-    panel.add(lblDestino); panel.add(txtDestino);
-    panel.add(lblKms); panel.add(txtKms);
-    panel.add(lblLitros); panel.add(txtLitros);
-    panel.add(lblObservaciones); panel.add(txtObservaciones);
 
-    // Mostrar diálogo (ESTILO PLAIN_MESSAGE igual que Socios)
+    panel.add(lblTanquero);
+    panel.add(comboTanqueros);
+    panel.add(lblChofer);
+    panel.add(comboSocios);
+    panel.add(lblCliente);
+    panel.add(txtCliente);
+    panel.add(lblOrigen);
+    panel.add(txtOrigen);
+    panel.add(lblDestino);
+    panel.add(txtDestino);
+    panel.add(lblKms);
+    panel.add(txtKms);
+    panel.add(lblLitros);
+    panel.add(txtLitros);
+    panel.add(lblObservaciones);
+    panel.add(txtObservaciones);
+
     int res = JOptionPane.showConfirmDialog(
       this,
       panel,
@@ -229,7 +229,7 @@ public class TransportePanel extends JPanel {
         int idxSocio = comboSocios.getSelectedIndex();
 
         if (idxTanquero < 0 || idxSocio < 0) {
-          GestorAlertas.mostrarError(this, "Debe seleccionar un Tanquero y un Chofer");
+          GestorAlertas.mostrarError(this, "Debe seleccionar un Tanquero y un Socio");
           return;
         }
 
@@ -243,9 +243,9 @@ public class TransportePanel extends JPanel {
         // Obtener tanquero seleccionado
         Tanquero tanqueroSel = null;
         int countT = 0;
-        for(Tanquero t : listaTanqueros) {
-          if(t.isEstado()) {
-            if(countT == idxTanquero) {
+        for (Tanquero t : listaTanqueros) {
+          if (t.isEstado()) {
+            if (countT == idxTanquero) {
               tanqueroSel = t;
               break;
             }
@@ -256,9 +256,9 @@ public class TransportePanel extends JPanel {
         // Obtener socio seleccionado
         Socio socioSel = null;
         int countS = 0;
-        for(Socio s : listaSocios) {
-          if(s.isEstado()) {
-            if(countS == idxSocio) {
+        for (Socio s : listaSocios) {
+          if (s.isEstado()) {
+            if (countS == idxSocio) {
               socioSel = s;
               break;
             }
@@ -302,19 +302,18 @@ public class TransportePanel extends JPanel {
           GestorAlertas.mostrarExito(this, "Viaje registrado exitosamente");
           cargarViajes();
         } else {
-          GestorAlertas.mostrarError(this, "Error al guardar en base de datos");
+          GestorAlertas.mostrarError(this, "Error al guardar");
         }
 
       } catch (NumberFormatException ex) {
         GestorAlertas.mostrarError(this, "Kilómetros y Litros deben ser números válidos");
       } catch (Exception ex) {
-        GestorAlertas.mostrarError(this, "Error inesperado: " + ex.getMessage());
+        GestorAlertas.mostrarError(this, "Error " + ex.getMessage());
         ex.printStackTrace();
       }
     }
   }
 
-  // ================== CAMBIAR ESTADO (ESTILO SOCIOS) ==================
   private void cambiarEstadoViaje() {
     int fila = tablaViajes.getSelectedRow();
     if (fila < 0) {
@@ -322,9 +321,12 @@ public class TransportePanel extends JPanel {
       return;
     }
 
-    int idTransporte = (int) modeloTabla.getValueAt(fila, 0);
-    String estadoActual = (String) modeloTabla.getValueAt(fila, 9); // Columna Estado
-    String tanquero = (String) modeloTabla.getValueAt(fila, 2);
+    // Recuperamos el objeto real desde la lista oculta
+    Transporte viaje = listaViajes.get(fila);
+
+    int idTransporte = viaje.getIdTransporte();
+    String estadoActual = (String) modeloTabla.getValueAt(fila, 8);
+    String tanquero = (String) modeloTabla.getValueAt(fila, 1);
 
     // Opciones de estado
     String[] opciones = {"En Curso", "Finalizado", "Cancelado"};
@@ -345,14 +347,14 @@ public class TransportePanel extends JPanel {
       int confirmacion = JOptionPane.showConfirmDialog(
         this,
         "¿Está seguro de cambiar el estado del viaje a \"" + nuevoEstado + "\"?",
-        "Confirmar Cambio de Estado",
+        "Cambiar Estado",
         JOptionPane.YES_NO_OPTION,
         JOptionPane.PLAIN_MESSAGE
       );
 
       if (confirmacion == JOptionPane.YES_OPTION) {
         if (gestorTransporte.cambiarEstadoViaje(idTransporte, nuevoEstado)) {
-          GestorAlertas.mostrarExito(this, "Estado actualizado correctamente");
+          GestorAlertas.mostrarExito(this, "Estado actualizado exitosamente");
           cargarViajes();
         } else {
           GestorAlertas.mostrarError(this, "Error al cambiar el estado");
@@ -361,7 +363,6 @@ public class TransportePanel extends JPanel {
     }
   }
 
-  // ================== ELIMINAR (ESTILO SOCIOS) ==================
   private void eliminarViaje() {
     int fila = tablaViajes.getSelectedRow();
     if (fila < 0) {
@@ -369,9 +370,12 @@ public class TransportePanel extends JPanel {
       return;
     }
 
-    int idTransporte = (int) modeloTabla.getValueAt(fila, 0);
-    String tanquero = (String) modeloTabla.getValueAt(fila, 2);
-    String destino = (String) modeloTabla.getValueAt(fila, 5);
+
+    Transporte viaje = listaViajes.get(fila);
+
+    int idTransporte = viaje.getIdTransporte();
+    String tanquero = (String) modeloTabla.getValueAt(fila, 1);
+    String destino = (String) modeloTabla.getValueAt(fila, 4);
 
     int confirmacion = JOptionPane.showConfirmDialog(
       this,
@@ -394,7 +398,6 @@ public class TransportePanel extends JPanel {
     }
   }
 
-  // ================== CONSULTAR VIAJE (ESTILO SOCIOS) ==================
   private void consultarViaje() {
     int fila = tablaViajes.getSelectedRow();
 
@@ -403,18 +406,8 @@ public class TransportePanel extends JPanel {
       return;
     }
 
-    int idTransporte = (int) modeloTabla.getValueAt(fila, 0);
+    Transporte viaje = listaViajes.get(fila);
 
-    // Buscar el viaje completo
-    List<Transporte> lista = gestorTransporte.listarViajes();
-    Transporte viaje = null;
-
-    for (Transporte t : lista) {
-      if (t.getIdTransporte() == idTransporte) {
-        viaje = t;
-        break;
-      }
-    }
 
     if (viaje == null) {
       GestorAlertas.mostrarError(this, "Error al cargar los datos del viaje");
@@ -429,40 +422,28 @@ public class TransportePanel extends JPanel {
     DateTimeFormatter fmtHora = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     StringBuilder detalles = new StringBuilder();
-    detalles.append("═══════════════════════════════════════\n");
-    detalles.append("           DETALLES DEL VIAJE\n");
-    detalles.append("═══════════════════════════════════════\n\n");
-
     detalles.append("ID Viaje:       ").append(viaje.getIdTransporte()).append("\n");
     detalles.append("Fecha:          ").append(viaje.getFechaAsignacion().format(fmtFecha)).append("\n");
     detalles.append("Hora:           ").append(viaje.getHoraAsignacion().format(fmtHora)).append("\n");
     detalles.append("Estado:         ").append(viaje.getEstadoViaje()).append("\n\n");
 
-    detalles.append("───────────────────────────────────────\n");
     detalles.append("TANQUERO\n");
-    detalles.append("───────────────────────────────────────\n");
     detalles.append("Placa:          ").append(viaje.getTanquero().getPlaca()).append("\n");
     detalles.append("Marca:          ").append(viaje.getTanquero().getMarca()).append("\n");
     detalles.append("Capacidad:      ").append(viaje.getTanquero().getCapacidadLitros()).append(" L\n\n");
 
-    detalles.append("───────────────────────────────────────\n");
-    detalles.append("CHOFER\n");
-    detalles.append("───────────────────────────────────────\n");
+    detalles.append("SOCIO\n");
     detalles.append("Nombre:         ").append(viaje.getSocio().getNombres()).append(" ").append(viaje.getSocio().getApellidos()).append("\n");
     detalles.append("Cédula:         ").append(viaje.getSocio().getCedula()).append("\n");
     detalles.append("Teléfono:       ").append(viaje.getSocio().getTelefono()).append("\n\n");
 
     if (viaje.getCliente() != null) {
-      detalles.append("───────────────────────────────────────\n");
       detalles.append("CLIENTE\n");
-      detalles.append("───────────────────────────────────────\n");
       detalles.append("Razón Social:   ").append(viaje.getCliente().getRazonSocial()).append("\n");
       detalles.append("RUC:            ").append(viaje.getCliente().getRuc()).append("\n\n");
     }
 
-    detalles.append("───────────────────────────────────────\n");
     detalles.append("RUTA Y CARGA\n");
-    detalles.append("───────────────────────────────────────\n");
     detalles.append("Origen:         ").append(viaje.getRutaOrigen()).append("\n");
     detalles.append("Destino:        ").append(viaje.getRutaDestino()).append("\n");
     detalles.append("Distancia:      ").append(String.format("%.2f", viaje.getKilometros())).append(" Km\n");
@@ -471,20 +452,13 @@ public class TransportePanel extends JPanel {
     detalles.append("Flete:          $ ").append(String.format("%.2f", viaje.getValorFlete())).append("\n\n");
 
     if (viaje.getObservaciones() != null && !viaje.getObservaciones().isEmpty()) {
-      detalles.append("───────────────────────────────────────\n");
       detalles.append("OBSERVACIONES\n");
-      detalles.append("───────────────────────────────────────\n");
       detalles.append(viaje.getObservaciones()).append("\n\n");
     }
 
-    if (viaje.getUsuarioRegistro() != null) {
-      detalles.append("Registrado por: ").append(viaje.getUsuarioRegistro()).append("\n");
-    }
-
-    // Crear JTextArea con el mismo estilo que Socios
     JTextArea textArea = new JTextArea(detalles.toString());
     textArea.setEditable(false);
-    textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+    textArea.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 
     JScrollPane scrollPane = new JScrollPane(textArea);
     scrollPane.setPreferredSize(new Dimension(450, 500));
