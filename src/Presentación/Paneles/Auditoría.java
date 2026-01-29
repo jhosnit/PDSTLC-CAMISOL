@@ -1,7 +1,8 @@
-package Presentación.Paneles.Auditoría;
+package Presentación.Paneles;
 
 import Presentación.Recursos.Botón;
 import Logica.Gestores.GestorAlertas;
+import Logica.Gestores.GestorAuditoria;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -44,6 +45,7 @@ public class Auditoría extends JPanel {
     panelHerramientas.add(btnExportar);
 
     crearTabla();
+    cargarDatosDesdeBD();
 
     JScrollPane scrollTabla = new JScrollPane(tablaLogs);
     scrollTabla.getViewport().setBackground(new Color(31, 41, 55));
@@ -57,7 +59,7 @@ public class Auditoría extends JPanel {
 
   private void crearTabla() {
     String[] columnas = {
-      "ID", "Usuario", "Nombre y Apellido", "Módulo", "Acción", "Fecha"
+      "ID", "Usuario", "Nombre y Apellido", "Acción", "Fecha"
     };
 
     modeloTabla = new DefaultTableModel(columnas, 0) {
@@ -95,6 +97,16 @@ public class Auditoría extends JPanel {
     tablaLogs.getColumnModel().getColumn(1).setPreferredWidth(150);
   }
 
+  private void cargarDatosDesdeBD() {
+    modeloTabla.setRowCount(0);
+    GestorAuditoria gestor = new Logica.Gestores.GestorAuditoria();
+    java.util.List<Object[]> eventos = gestor.listarEventos();
+
+    for (Object[] fila : eventos) {
+      modeloTabla.addRow(fila);
+    }
+  }
+
   private void exportarCSV() {
     DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     JFileChooser chooser = new JFileChooser();
@@ -123,7 +135,7 @@ public class Auditoría extends JPanel {
           writer.append("\n");
         }
 
-        GestorAlertas.mostrarExito(this, "Informe exportado correctamente");
+        GestorAlertas.mostrarExito(this, "Informe exportado exitosamente");
 
       } catch (IOException e) {
         GestorAlertas.mostrarError(this, "Error al exportar informe: " + e.getMessage());
@@ -131,33 +143,38 @@ public class Auditoría extends JPanel {
     }
   }
 
-  public static void registrarAccion(String usuario, String nombre, String modulo, String accion) {
+  public static void registrarAccion(String usuario, String nombre, String accion) {
     if (instancia == null) {
       instancia = new Auditoría();
     }
 
-    DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss");
+    GestorAuditoria gestor = new GestorAuditoria();
 
-    modeloTabla.addRow(new Object[]{
-      modeloTabla.getRowCount() + 1,
-      usuario,
-      nombre,
-      modulo,
-      accion,
-      LocalDateTime.now().format(fmt)
-    });
+    int idGenerado = gestor.registrarEvento(usuario, nombre, accion);
+
+    if (idGenerado > 0) {
+      DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+      modeloTabla.insertRow(0, new Object[]{
+        idGenerado,
+        usuario,
+        nombre,
+        accion,
+        LocalDateTime.now().format(fmt)
+      });
+    }
   }
 
   public static boolean solicitarContraseña() {
 
     JPasswordField pf = new JPasswordField();
     int okCxl = JOptionPane.showConfirmDialog(
-      instancia, pf, "Ingrese contraseña de auditoría", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
+      instancia, pf, "Contraseña", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
     );
 
     if (okCxl == JOptionPane.OK_OPTION) {
       String password = new String(pf.getPassword());
-      if (password.equals("admin")) {
+      if (password.equals("admin123")) {
         return true;
       } else {
         GestorAlertas.mostrarError(instancia, "Contraseña incorrecta");
@@ -166,4 +183,5 @@ public class Auditoría extends JPanel {
     }
     return false;
   }
+
 }

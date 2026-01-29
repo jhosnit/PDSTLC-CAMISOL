@@ -1,4 +1,4 @@
-package Presentación.Paneles.Administración;
+package Presentación.Paneles;
 
 import Presentación.Recursos.Botón;
 import Logica.Gestores.GestorAlertas;
@@ -40,13 +40,15 @@ public class Administración extends JPanel {
     JPanel panelHerramientas = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
     panelHerramientas.setOpaque(false);
 
-    Botón botónCrearUsuario = new Botón("Crear Usuario", new Color(34, 197, 94));
+    Botón botónCrearUsuario = new Botón("Crear Usuario", new Color(40, 167, 69));
     Botón botónCambiarClave = new Botón("Cambiar Contraseña", new Color(70, 128, 139));
-    Botón botónCambiarEstado = new Botón("Cambiar Estado", new Color(251, 146, 60));
+    Botón botónCambiarEstado = new Botón("Cambiar Estado", new Color(147, 51, 234));
     Botón botónParámetros = new Botón("Configurar Parámetro", new Color(59, 130, 246));
     Botón botónBackup = new Botón("Respaldar Sistema", new Color(249, 115, 22));
     Botón botónRestore = new Botón("Restaurar Sistema", new Color(239, 68, 68));
-    Botón botónActualizar = new Botón("Actualizar Tabla", new Color(34, 197, 94));
+    Botón botónActualizar = new Botón("\uD83D\uDD04", new Color(253, 253, 253));
+
+    botónActualizar.setForeground(Color.BLACK);
 
     Dimension dim = new Dimension(180, 40);
     botónCrearUsuario.setPreferredSize(dim);
@@ -55,7 +57,7 @@ public class Administración extends JPanel {
     botónParámetros.setPreferredSize(dim);
     botónBackup.setPreferredSize(dim);
     botónRestore.setPreferredSize(dim);
-    botónActualizar.setPreferredSize(dim);
+    botónActualizar.setPreferredSize(new Dimension(50, 40));
 
     panelHerramientas.add(botónCrearUsuario);
     panelHerramientas.add(botónCambiarClave);
@@ -322,7 +324,6 @@ public class Administración extends JPanel {
     if (resultado == JOptionPane.OK_OPTION) {
       String valorIva = txtIVA.getText().trim();
 
-      // Validaciones
       if (valorIva.isEmpty()) {
         GestorAlertas.mostrarError(this, "El IVA es obligatorio");
         return;

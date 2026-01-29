@@ -1,7 +1,8 @@
-package Presentación.Paneles.Transporte;
+package Presentación.Paneles;
 
 import Logica.Entidades.*;
 import Logica.Gestores.*;
+import Logica.Utilidades.CalculadoraFlete;
 import Presentación.Recursos.Botón;
 
 import javax.swing.*;
@@ -16,7 +17,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class TransportePanel extends JPanel {
+public class Transportes extends JPanel {
 
   private JTable tablaViajes;
   private DefaultTableModel modeloTabla;
@@ -29,7 +30,7 @@ public class TransportePanel extends JPanel {
 
   private Botón btnNuevoViaje, btnActualizar, btnConsultar, btnCambiarEstado, btnEliminar;
 
-  public TransportePanel(Usuario usuario) {
+  public Transportes(Usuario usuario) {
     this.usuarioActual = usuario;
     this.gestorTransporte = new GestorTransporte();
     this.gestorTanqueros = new GestorTanqueros();
@@ -48,27 +49,28 @@ public class TransportePanel extends JPanel {
     panelBotones.setOpaque(false);
 
     btnNuevoViaje = new Botón("Nuevo Destino", new Color(40, 167, 69));
-    btnCambiarEstado = new Botón("Cambiar Estado", new Color(234, 177, 0));
     btnConsultar = new Botón("Consultar", new Color(70, 128, 139));
+    btnCambiarEstado = new Botón("Cambiar Estado", new Color(147, 51, 234));
     btnEliminar = new Botón("Eliminar", new Color(239, 68, 68));
-    btnActualizar = new Botón("Actualizar Tabla", new Color(147, 51, 234));
+    btnActualizar = new Botón("\uD83D\uDD04", new Color(253, 253, 253));
+    btnActualizar.setForeground(Color.BLACK);
 
     Dimension dim = new Dimension(150, 40);
     btnNuevoViaje.setPreferredSize(dim);
-    btnCambiarEstado.setPreferredSize(dim);
     btnConsultar.setPreferredSize(dim);
+    btnCambiarEstado.setPreferredSize(dim);
     btnEliminar.setPreferredSize(dim);
-    btnActualizar.setPreferredSize(dim);
+    btnActualizar.setPreferredSize(new Dimension(50, 40));
 
     panelBotones.add(btnNuevoViaje);
-    panelBotones.add(btnCambiarEstado);
     panelBotones.add(btnConsultar);
+    panelBotones.add(btnCambiarEstado);
     panelBotones.add(btnEliminar);
     panelBotones.add(btnActualizar);
     add(panelBotones, BorderLayout.NORTH);
 
     String[] columnas = {
-      "Fecha", "Tanquero", "Chofer", "Cliente", "Destino", "Litros", "Ocupación", "Flete ($)", "Estado"
+      "Fecha", "Tanquero", "Socio", "Cliente", "Destino", "Litros", "Ocupación", "Flete ($)", "Estado"
     };
 
     modeloTabla = new DefaultTableModel(columnas, 0) {
@@ -117,10 +119,9 @@ public class TransportePanel extends JPanel {
       tablaViajes.getColumnModel().getColumn(i).setCellRenderer(centerRender);
     }
 
-    // Ajustar anchos
-    tablaViajes.getColumnModel().getColumn(0).setPreferredWidth(90); // ID
-    tablaViajes.getColumnModel().getColumn(1).setPreferredWidth(100); // Fecha
-    tablaViajes.getColumnModel().getColumn(2).setPreferredWidth(100); // Tanquero
+    tablaViajes.getColumnModel().getColumn(0).setPreferredWidth(90);
+    tablaViajes.getColumnModel().getColumn(1).setPreferredWidth(100);
+    tablaViajes.getColumnModel().getColumn(2).setPreferredWidth(100);
   }
 
   private void cargarViajes() {
@@ -162,19 +163,14 @@ public class TransportePanel extends JPanel {
     List<Tanquero> listaTanqueros = gestorTanqueros.listarTanqueros();
     for (Tanquero t : listaTanqueros) {
       if (t.isEstado()) {
-        comboTanqueros.addItem(t.getPlaca() + " - " + t.getCapacidadLitros() + "L");
+        comboTanqueros.addItem(t.getPlaca() + " - " + t.getCapacidadLitros() + " L");
       }
     }
-
 
     JLabel lblChofer = new JLabel("Socio:");
-    JComboBox<String> comboSocios = new JComboBox<>();
-    List<Socio> listaSocios = gestorSocios.listarSocios();
-    for (Socio s : listaSocios) {
-      if (s.isEstado()) {
-        comboSocios.addItem(s.getCedula() + " - " + s.getNombres() + " " + s.getApellidos());
-      }
-    }
+    JTextField txtSocio = new JTextField();
+    txtSocio.setEditable(false);
+    txtSocio.setBackground(Color.LIGHT_GRAY);
 
     JLabel lblCliente = new JLabel("Cliente:");
     JTextField txtCliente = new JTextField(clienteDefecto.getRazonSocial());
@@ -196,11 +192,35 @@ public class TransportePanel extends JPanel {
     JLabel lblObservaciones = new JLabel("Observaciones:");
     JTextField txtObservaciones = new JTextField();
 
+    comboTanqueros.addActionListener(e -> {
+      int idxTanquero = comboTanqueros.getSelectedIndex();
+      if (idxTanquero >= 0) {
+        String item = (String) comboTanqueros.getSelectedItem();
+        String placaSeleccionada = item.split(" - ")[0];
+
+        Tanquero tSeleccionado = null;
+        for (Tanquero t : listaTanqueros) {
+          if (t.getPlaca().equals(placaSeleccionada)) {
+            tSeleccionado = t;
+            break;
+          }
+        }
+
+        if (tSeleccionado != null) {
+          Socio socioAsignado = gestorSocios.obtenerSocioAsignadoATanquero(tSeleccionado.getIdTanquero());
+          if (socioAsignado != null) {
+            txtSocio.setText(socioAsignado.getNombreCompleto());
+          } else {
+            txtSocio.setText("Sin socio asignado");
+          }
+        }
+      }
+    });
 
     panel.add(lblTanquero);
     panel.add(comboTanqueros);
     panel.add(lblChofer);
-    panel.add(comboSocios);
+    panel.add(txtSocio);
     panel.add(lblCliente);
     panel.add(txtCliente);
     panel.add(lblOrigen);
@@ -224,65 +244,50 @@ public class TransportePanel extends JPanel {
 
     if (res == JOptionPane.OK_OPTION) {
       try {
-        // Validar selecciones
-        int idxTanquero = comboTanqueros.getSelectedIndex();
-        int idxSocio = comboSocios.getSelectedIndex();
-
-        if (idxTanquero < 0 || idxSocio < 0) {
-          GestorAlertas.mostrarError(this, "Debe seleccionar un Tanquero y un Socio");
+        if (comboTanqueros.getSelectedIndex() < 0) {
+          GestorAlertas.mostrarError(this, "Debe seleccionar un Tanquero");
           return;
         }
 
-        // Validar campos vacíos
         if (txtDestino.getText().trim().isEmpty() || txtKms.getText().trim().isEmpty() ||
           txtLitros.getText().trim().isEmpty()) {
           GestorAlertas.mostrarError(this, "Todos los campos son obligatorios");
           return;
         }
 
-        // Obtener tanquero seleccionado
+        String item = (String) comboTanqueros.getSelectedItem();
+        String placaSeleccionada = item.split(" - ")[0];
         Tanquero tanqueroSel = null;
-        int countT = 0;
         for (Tanquero t : listaTanqueros) {
-          if (t.isEstado()) {
-            if (countT == idxTanquero) {
-              tanqueroSel = t;
-              break;
-            }
-            countT++;
+          if (t.getPlaca().equals(placaSeleccionada)) {
+            tanqueroSel = t;
+            break;
           }
         }
 
-        // Obtener socio seleccionado
-        Socio socioSel = null;
-        int countS = 0;
-        for (Socio s : listaSocios) {
-          if (s.isEstado()) {
-            if (countS == idxSocio) {
-              socioSel = s;
-              break;
-            }
-            countS++;
-          }
+        Socio socioSel = gestorSocios.obtenerSocioAsignadoATanquero(tanqueroSel.getIdTanquero());
+        if (socioSel == null) {
+          GestorAlertas.mostrarError(this, "El tanquero no tiene un socio asignado");
+          return;
         }
 
-        // Validaciones numéricas
         double kms = Double.parseDouble(txtKms.getText().trim());
         double litros = Double.parseDouble(txtLitros.getText().trim());
 
         if (kms < 0 || litros <= 0) {
-          GestorAlertas.mostrarError(this, "Kilómetros y Litros deben ser valores positivos");
+          GestorAlertas.mostrarError(this, "Kilómetros o Litros inválidos");
           return;
         }
 
         if (litros > tanqueroSel.getCapacidadLitros()) {
-          GestorAlertas.mostrarError(this,
-            String.format("La carga (%.2f L) excede la capacidad del tanquero (%.2f L)",
-              litros, tanqueroSel.getCapacidadLitros()));
+          GestorAlertas.mostrarError(this, "La carga excede la capacidad del tanquero");
           return;
         }
 
-        // Crear objeto Transporte
+        double porcentajeOcupacion = (litros / tanqueroSel.getCapacidadLitros()) * 100.0;
+        CalculadoraFlete calcu = new CalculadoraFlete();
+        double costoFlete = calcu.calcularCostoTotal(kms, litros);
+
         Transporte t = new Transporte();
         t.setTanquero(tanqueroSel);
         t.setSocio(socioSel);
@@ -293,23 +298,22 @@ public class TransportePanel extends JPanel {
         t.setRutaDestino(txtDestino.getText().trim());
         t.setKilometros(kms);
         t.setLitrosTransportados(litros);
+        t.setPorcentajeOcupacion(porcentajeOcupacion);
+        t.setValorFlete(costoFlete);
         t.setEstadoViaje("En Curso");
         t.setUsuarioRegistro(usuarioActual.getUsername());
         t.setObservaciones(txtObservaciones.getText().trim());
 
-        // Guardar en BD
         if (gestorTransporte.registrarViaje(t)) {
           GestorAlertas.mostrarExito(this, "Viaje registrado exitosamente");
           cargarViajes();
         } else {
           GestorAlertas.mostrarError(this, "Error al guardar");
         }
-
       } catch (NumberFormatException ex) {
-        GestorAlertas.mostrarError(this, "Kilómetros y Litros deben ser números válidos");
+        GestorAlertas.mostrarError(this, "Kilómetros o Litros inválidos");
       } catch (Exception ex) {
-        GestorAlertas.mostrarError(this, "Error " + ex.getMessage());
-        ex.printStackTrace();
+        GestorAlertas.mostrarError(this, "Error: " + ex.getMessage());
       }
     }
   }
@@ -321,20 +325,27 @@ public class TransportePanel extends JPanel {
       return;
     }
 
-    // Recuperamos el objeto real desde la lista oculta
     Transporte viaje = listaViajes.get(fila);
+    String estadoActual = viaje.getEstadoViaje();
+
+
+    if (estadoActual.equals("Finalizado")) {
+      GestorAlertas.mostrarAdvertencia(this, "El viaje ya finalizó, no se puede modificar");
+      return;
+    }
+    if (estadoActual.equals("Cancelado")) {
+      GestorAlertas.mostrarAdvertencia(this, "El viaje fue cancelado, no se puede modificar");
+      return;
+    }
 
     int idTransporte = viaje.getIdTransporte();
-    String estadoActual = (String) modeloTabla.getValueAt(fila, 8);
-    String tanquero = (String) modeloTabla.getValueAt(fila, 1);
+    String tanquero = viaje.getTanquero().getPlaca();
 
-    // Opciones de estado
-    String[] opciones = {"En Curso", "Finalizado", "Cancelado"};
+    String[] opciones = {"Cancelado", "Finalizado"};
 
     String nuevoEstado = (String) JOptionPane.showInputDialog(
       this,
-      "Seleccione el nuevo estado para el viaje:\n" +
-        "Tanquero: " + tanquero + "\n" +
+      "Tanquero: " + tanquero + "\n" +
         "Estado actual: " + estadoActual,
       "Cambiar Estado del Viaje",
       JOptionPane.PLAIN_MESSAGE,
@@ -344,23 +355,15 @@ public class TransportePanel extends JPanel {
     );
 
     if (nuevoEstado != null && !nuevoEstado.equals(estadoActual)) {
-      int confirmacion = JOptionPane.showConfirmDialog(
-        this,
-        "¿Está seguro de cambiar el estado del viaje a \"" + nuevoEstado + "\"?",
-        "Cambiar Estado",
-        JOptionPane.YES_NO_OPTION,
-        JOptionPane.PLAIN_MESSAGE
-      );
 
-      if (confirmacion == JOptionPane.YES_OPTION) {
-        if (gestorTransporte.cambiarEstadoViaje(idTransporte, nuevoEstado)) {
-          GestorAlertas.mostrarExito(this, "Estado actualizado exitosamente");
-          cargarViajes();
-        } else {
-          GestorAlertas.mostrarError(this, "Error al cambiar el estado");
-        }
+      if (gestorTransporte.cambiarEstadoViaje(idTransporte, nuevoEstado)) {
+        GestorAlertas.mostrarExito(this, "Estado actualizado exitosamente");
+        cargarViajes();
+      } else {
+        GestorAlertas.mostrarError(this, "Error al cambiar el estado");
       }
     }
+
   }
 
   private void eliminarViaje() {
@@ -370,27 +373,26 @@ public class TransportePanel extends JPanel {
       return;
     }
 
-
     Transporte viaje = listaViajes.get(fila);
+    String estadoViaje = viaje.getEstadoViaje();
 
-    int idTransporte = viaje.getIdTransporte();
-    String tanquero = (String) modeloTabla.getValueAt(fila, 1);
-    String destino = (String) modeloTabla.getValueAt(fila, 4);
+    if (!estadoViaje.equals("Cancelado") && !estadoViaje.equals("Finalizado")) {
+      GestorAlertas.mostrarAdvertencia(this,
+        "Solo se pueden eliminar viajes en estado 'Cancelado' o 'Finalizado'");
+      return;
+    }
 
     int confirmacion = JOptionPane.showConfirmDialog(
       this,
-      "¿Está seguro de eliminar el viaje?\n\n" +
-        "Tanquero: " + tanquero + "\n" +
-        "Destino: " + destino + "\n\n" +
-        "Esta acción marcará el viaje como CANCELADO.",
+      "¿Desea eliminar definitivamente este viaje del historial?",
       "Confirmar Eliminación",
       JOptionPane.YES_NO_OPTION,
-      JOptionPane.WARNING_MESSAGE
+      JOptionPane.PLAIN_MESSAGE
     );
 
     if (confirmacion == JOptionPane.YES_OPTION) {
-      if (gestorTransporte.eliminarViaje(idTransporte)) {
-        GestorAlertas.mostrarExito(this, "Viaje eliminado correctamente (Estado: Cancelado)");
+      if (gestorTransporte.eliminarViaje(viaje.getIdTransporte())) {
+        GestorAlertas.mostrarExito(this, "Viaje eliminado exitosamente");
         cargarViajes();
       } else {
         GestorAlertas.mostrarError(this, "Error al eliminar el viaje");
@@ -400,20 +402,11 @@ public class TransportePanel extends JPanel {
 
   private void consultarViaje() {
     int fila = tablaViajes.getSelectedRow();
-
     if (fila < 0) {
       GestorAlertas.mostrarAdvertencia(this, "Seleccione un viaje de la tabla");
       return;
     }
-
     Transporte viaje = listaViajes.get(fila);
-
-
-    if (viaje == null) {
-      GestorAlertas.mostrarError(this, "Error al cargar los datos del viaje");
-      return;
-    }
-
     mostrarDetallesViaje(viaje);
   }
 
@@ -422,25 +415,31 @@ public class TransportePanel extends JPanel {
     DateTimeFormatter fmtHora = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     StringBuilder detalles = new StringBuilder();
-    detalles.append("ID Viaje:       ").append(viaje.getIdTransporte()).append("\n");
-    detalles.append("Fecha:          ").append(viaje.getFechaAsignacion().format(fmtFecha)).append("\n");
-    detalles.append("Hora:           ").append(viaje.getHoraAsignacion().format(fmtHora)).append("\n");
-    detalles.append("Estado:         ").append(viaje.getEstadoViaje()).append("\n\n");
+    detalles.append("VIAJE\n");
+    detalles.append("Inicio:         ").append(viaje.getFechaAsignacion().format(fmtFecha))
+      .append(" ").append(viaje.getHoraAsignacion().format(fmtHora)).append("\n");
+
+    if (viaje.getFechaFin() != null && viaje.getHoraFin() != null) {
+      detalles.append("Fin:            ").append(viaje.getFechaFin().format(fmtFecha))
+        .append(" ").append(viaje.getHoraFin().format(fmtHora)).append("\n\n");
+    } else {
+      detalles.append("Fin:            En Curso\n\n");
+    }
 
     detalles.append("TANQUERO\n");
     detalles.append("Placa:          ").append(viaje.getTanquero().getPlaca()).append("\n");
-    detalles.append("Marca:          ").append(viaje.getTanquero().getMarca()).append("\n");
     detalles.append("Capacidad:      ").append(viaje.getTanquero().getCapacidadLitros()).append(" L\n\n");
 
     detalles.append("SOCIO\n");
-    detalles.append("Nombre:         ").append(viaje.getSocio().getNombres()).append(" ").append(viaje.getSocio().getApellidos()).append("\n");
-    detalles.append("Cédula:         ").append(viaje.getSocio().getCedula()).append("\n");
-    detalles.append("Teléfono:       ").append(viaje.getSocio().getTelefono()).append("\n\n");
+    if (viaje.getSocio() != null) {
+      detalles.append("Nombre:         ").append(viaje.getSocio().getNombres()).append(" ").append(viaje.getSocio().getApellidos()).append("\n");
+      detalles.append("Cédula:         ").append(viaje.getSocio().getCedula()).append("\n\n");
+    }
 
     if (viaje.getCliente() != null) {
       detalles.append("CLIENTE\n");
-      detalles.append("Razón Social:   ").append(viaje.getCliente().getRazonSocial()).append("\n");
-      detalles.append("RUC:            ").append(viaje.getCliente().getRuc()).append("\n\n");
+      detalles.append("RUC:          0990318735001\n");
+      detalles.append("Razón Social:   ").append(viaje.getCliente().getRazonSocial()).append("\n\n");
     }
 
     detalles.append("RUTA Y CARGA\n");
@@ -463,11 +462,6 @@ public class TransportePanel extends JPanel {
     JScrollPane scrollPane = new JScrollPane(textArea);
     scrollPane.setPreferredSize(new Dimension(450, 500));
 
-    JOptionPane.showMessageDialog(
-      this,
-      scrollPane,
-      "Detalles del Viaje",
-      JOptionPane.PLAIN_MESSAGE
-    );
+    JOptionPane.showMessageDialog(this, scrollPane, "Detalles del Viaje", JOptionPane.PLAIN_MESSAGE);
   }
 }

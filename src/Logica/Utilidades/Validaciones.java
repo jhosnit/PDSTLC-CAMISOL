@@ -100,7 +100,7 @@ public class Validaciones {
     if (!placa.matches("^[A-Z]{3}-[0-9]{3,4}$")) {
       return false;
     }
-    
+
     char primeraLetra = placa.charAt(0);
     String provinciasValidas = "ABCEGHIJKLMNOPQRSTUVWXYZ"; // Lista de códigos de provincias
 
