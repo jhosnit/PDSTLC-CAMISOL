@@ -1,7 +1,7 @@
 package Presentación.Ventanas;
 
 import Logica.Entidades.Usuario;
-import Presentación.Paneles.Auditoría.Auditoría;
+import Presentación.Paneles.Auditoría;
 import Presentación.Recursos.Botón;
 import Logica.Gestores.GestorAlertas;
 import Logica.Gestores.GestorUsuarios;
@@ -37,12 +37,10 @@ public class VentanaInicio extends JFrame {
     setResizable(false);
     setIconImage(new ImageIcon("src/Presentación/Recursos/Icono.png").getImage());
 
-    // Panel principal
     JPanel panelPrincipal = new JPanel(new GridBagLayout());
     panelPrincipal.setBackground(new Color(18, 18, 18));
     GridBagConstraints gbc = new GridBagConstraints();
 
-    // Panel izquierdo decorativo
     JPanel panelIzquierdo = crearPanelDecorativo();
     gbc.gridx = 0;
     gbc.gridy = 0;
@@ -51,7 +49,6 @@ public class VentanaInicio extends JFrame {
     gbc.fill = GridBagConstraints.BOTH;
     panelPrincipal.add(panelIzquierdo, gbc);
 
-    // Panel derecho formulario
     JPanel panelDerecho = crearPanelFormulario();
     gbc.gridx = 1;
     gbc.weightx = 0.6;
@@ -87,7 +84,6 @@ public class VentanaInicio extends JFrame {
     contenido.setLayout(new BoxLayout(contenido, BoxLayout.Y_AXIS));
     contenido.setOpaque(false);
 
-    // Logo
     JLabel etiquetaLogo = new JLabel();
     ImageIcon íconoImagen = new ImageIcon("src/Presentación/Recursos/logo.png");
     Image logo = íconoImagen.getImage().getScaledInstance(280, 280, Image.SCALE_SMOOTH);
@@ -96,7 +92,6 @@ public class VentanaInicio extends JFrame {
     contenido.add(etiquetaLogo);
     contenido.add(Box.createRigidArea(new Dimension(0, 10)));
 
-    // Texto de la empresa
     JLabel lblBienvenida = new JLabel("<html><center>Sistema de Transporte de Lácteos <br> para la Cooperativa CAMISOL S.A.</center></html>");
     lblBienvenida.setFont(new Font("Segoe UI", Font.BOLD, 28));
     lblBienvenida.setForeground(Color.WHITE);
@@ -118,7 +113,6 @@ public class VentanaInicio extends JFrame {
     formulario.setOpaque(false);
     formulario.setBorder(new EmptyBorder(60, 50, 60, 50));
 
-    // Título
     JLabel lblTitulo = new JLabel("Iniciar Sesión");
     lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 28));
     lblTitulo.setForeground(Color.WHITE);
@@ -127,7 +121,6 @@ public class VentanaInicio extends JFrame {
 
     formulario.add(Box.createRigidArea(new Dimension(0, 20)));
 
-    // Usuario
     JLabel lblUsuario = new JLabel("Usuario");
     lblUsuario.setFont(new Font("Segoe UI", Font.BOLD, 13));
     lblUsuario.setForeground(new Color(229, 231, 235));
@@ -152,7 +145,6 @@ public class VentanaInicio extends JFrame {
 
     formulario.add(Box.createRigidArea(new Dimension(0, 20)));
 
-    // Contraseña
     JLabel lblContraseña = new JLabel("Contraseña");
     lblContraseña.setFont(new Font("Segoe UI", Font.BOLD, 13));
     lblContraseña.setForeground(new Color(229, 231, 235));
@@ -177,7 +169,6 @@ public class VentanaInicio extends JFrame {
 
     formulario.add(Box.createRigidArea(new Dimension(0, 15)));
 
-    // Checkbox mostrar contraseña
     mostrarContraseña = new JCheckBox("Mostrar contraseña");
     mostrarContraseña.setFont(new Font("Segoe UI", Font.PLAIN, 12));
     mostrarContraseña.setForeground(new Color(156, 163, 175));
@@ -234,17 +225,29 @@ public class VentanaInicio extends JFrame {
     }
 
     if (new GestorUsuarios().validarCredenciales(usuario, contraseña)) {
-      // Auditoría.obtenerInstancia().loginExitoso();
+
       Usuario usuarioLogueado = GestorUsuarios.obtenerUsuarioPorUsername(usuario);
       dispose();
       new VentanaPrincipal(usuarioLogueado).setVisible(true);
 
     } else {
+      Usuario u = GestorUsuarios.obtenerUsuarioPorUsername(usuario);
+
+      String nombreReal;
+      String accion;
+
+      if (u != null) {
+        nombreReal = u.getNombre() + " " + u.getApellido();
+        accion = "Contraseña incorrecta";
+      } else {
+        nombreReal = "Usuario no Registrado";
+        accion = "Usuario inexistente";
+      }
+
+      Auditoría.registrarAccion(usuario, nombreReal, "Inicio de sesión fallido (" + accion + ")");
       GestorAlertas.mostrarErrorLogin(this, "Usuario o contraseña incorrecto");
       textoUsuario.setText("");
       textoContraseña.setText("");
-      // Auditoría.obtenerInstancia().loginFallido(usuario);
-
     }
   }
 

@@ -2,6 +2,7 @@ package Logica.Gestores;
 
 import Logica.Conexión.ConexionBD;
 import Logica.Entidades.Parámetros;
+
 import java.sql.*;
 
 public class GestorParámetros {

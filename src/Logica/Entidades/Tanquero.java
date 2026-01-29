@@ -14,6 +14,7 @@ public class Tanquero {
   private LocalDateTime fechaModificacion;
   private String usuarioRegistro;
 
+
   public Tanquero() {
   }
 
@@ -26,35 +27,85 @@ public class Tanquero {
     this.estado = true;
   }
 
-  public int getIdTanquero() { return idTanquero; }
-  public void setIdTanquero(int idTanquero) { this.idTanquero = idTanquero; }
+  public int getIdTanquero() {
+    return idTanquero;
+  }
 
-  public String getPlaca() { return placa; }
-  public void setPlaca(String placa) { this.placa = placa; }
+  public void setIdTanquero(int idTanquero) {
+    this.idTanquero = idTanquero;
+  }
 
-  public String getMarca() { return marca; }
-  public void setMarca(String marca) { this.marca = marca; }
+  public String getPlaca() {
+    return placa;
+  }
 
-  public String getModelo() { return modelo; }
-  public void setModelo(String modelo) { this.modelo = modelo; }
+  public void setPlaca(String placa) {
+    this.placa = placa;
+  }
 
-  public int getAnioFabricacion() { return anioFabricacion; }
-  public void setAnioFabricacion(int anioFabricacion) { this.anioFabricacion = anioFabricacion; }
+  public String getMarca() {
+    return marca;
+  }
 
-  public double getCapacidadLitros() { return capacidadLitros; }
-  public void setCapacidadLitros(double capacidadLitros) { this.capacidadLitros = capacidadLitros; }
+  public void setMarca(String marca) {
+    this.marca = marca;
+  }
 
-  public boolean isEstado() { return estado; }
-  public void setEstado(boolean estado) { this.estado = estado; }
+  public String getModelo() {
+    return modelo;
+  }
 
-  public LocalDateTime getFechaRegistro() { return fechaRegistro; }
-  public void setFechaRegistro(LocalDateTime fechaRegistro) { this.fechaRegistro = fechaRegistro; }
+  public void setModelo(String modelo) {
+    this.modelo = modelo;
+  }
 
-  public LocalDateTime getFechaModificacion() { return fechaModificacion; }
-  public void setFechaModificacion(LocalDateTime fechaModificacion) { this.fechaModificacion = fechaModificacion; }
+  public int getAnioFabricacion() {
+    return anioFabricacion;
+  }
 
-  public String getUsuarioRegistro() { return usuarioRegistro; }
-  public void setUsuarioRegistro(String usuarioRegistro) { this.usuarioRegistro = usuarioRegistro; }
+  public void setAnioFabricacion(int anioFabricacion) {
+    this.anioFabricacion = anioFabricacion;
+  }
+
+  public double getCapacidadLitros() {
+    return capacidadLitros;
+  }
+
+  public void setCapacidadLitros(double capacidadLitros) {
+    this.capacidadLitros = capacidadLitros;
+  }
+
+  public boolean isEstado() {
+    return estado;
+  }
+
+  public void setEstado(boolean estado) {
+    this.estado = estado;
+  }
+
+  public LocalDateTime getFechaRegistro() {
+    return fechaRegistro;
+  }
+
+  public void setFechaRegistro(LocalDateTime fechaRegistro) {
+    this.fechaRegistro = fechaRegistro;
+  }
+
+  public LocalDateTime getFechaModificacion() {
+    return fechaModificacion;
+  }
+
+  public void setFechaModificacion(LocalDateTime fechaModificacion) {
+    this.fechaModificacion = fechaModificacion;
+  }
+
+  public String getUsuarioRegistro() {
+    return usuarioRegistro;
+  }
+
+  public void setUsuarioRegistro(String usuarioRegistro) {
+    this.usuarioRegistro = usuarioRegistro;
+  }
 
   @Override
   public String toString() {

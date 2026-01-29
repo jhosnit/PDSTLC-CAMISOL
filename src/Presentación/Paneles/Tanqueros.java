@@ -1,4 +1,4 @@
-package Presentación.Paneles.Tanqueros;
+package Presentación.Paneles;
 
 import Presentación.Recursos.Botón;
 import Logica.Entidades.Socio;
@@ -30,7 +30,7 @@ public class Tanqueros extends JPanel {
   private Usuario usuarioActual;
 
   private Botón botónRegistrar, botónConsultar, botónModificar, botónEliminar;
-  private Botón botónAsignarChofer;
+  private Botón botónAsignarChofer, botónCambiarEstado, botónActualizar;
 
   public Tanqueros(Usuario usuario) {
     this.usuarioActual = usuario;
@@ -53,6 +53,9 @@ public class Tanqueros extends JPanel {
     botónConsultar = new Botón("Consultar", new Color(70, 128, 139));
     botónAsignarChofer = new Botón("Asignar Socio", new Color(99, 102, 241));
     botónEliminar = new Botón("Eliminar", new Color(239, 68, 68));
+    botónCambiarEstado = new Botón("Cambiar Estado", new Color(147, 51, 234));
+    botónActualizar = new Botón("\uD83D\uDD04", new Color(253, 253, 253));
+    botónActualizar.setForeground(Color.BLACK);
 
     Dimension dimBoton = new Dimension(160, 40);
     botónRegistrar.setPreferredSize(dimBoton);
@@ -60,12 +63,16 @@ public class Tanqueros extends JPanel {
     botónModificar.setPreferredSize(dimBoton);
     botónEliminar.setPreferredSize(dimBoton);
     botónAsignarChofer.setPreferredSize(dimBoton);
+    botónCambiarEstado.setPreferredSize(dimBoton);
+    botónActualizar.setPreferredSize(new Dimension(50, 40));
 
     panelBotones.add(botónRegistrar);
     panelBotones.add(botónModificar);
     panelBotones.add(botónConsultar);
+    panelBotones.add(botónCambiarEstado);
     panelBotones.add(botónAsignarChofer);
     panelBotones.add(botónEliminar);
+    panelBotones.add(botónActualizar);
 
     add(panelBotones, BorderLayout.NORTH);
 
@@ -92,6 +99,8 @@ public class Tanqueros extends JPanel {
     botónModificar.addActionListener(e -> modificarTanquero());
     botónEliminar.addActionListener(e -> eliminarTanquero());
     botónAsignarChofer.addActionListener(e -> asignarChofer());
+    botónCambiarEstado.addActionListener(e -> cambiarEstado());
+    botónActualizar.addActionListener(e -> cargarDatosBD());
   }
 
   private void configurarEstiloTabla() {
@@ -283,27 +292,31 @@ public class Tanqueros extends JPanel {
   }
 
   private void consultarTanquero() {
-    String placa = JOptionPane.showInputDialog(
-      this,
-      "Ingrese la Placa del vehículo:",
-      "Consultar Vehículo",
-      JOptionPane.PLAIN_MESSAGE
-    );
+    int fila = tabla.getSelectedRow();
 
-    if (placa != null && !placa.trim().isEmpty()) {
-      Tanquero t = gestorTanqueros.buscarPorPlaca(placa.trim().toUpperCase());
-      if (t != null) {
-        mostrarDetallesTanquero(t);
-      } else {
-        GestorAlertas.mostrarError(this, "No se encontró un vehículo con esa placa");
-      }
+    if (fila < 0) {
+      GestorAlertas.mostrarAdvertencia(this, "Seleccione un vehículo de la tabla");
+      return;
     }
+
+    String placa = (String) modelo.getValueAt(fila, 0);
+    Tanquero t = gestorTanqueros.buscarPorPlaca(placa);
+
+    if (t == null) {
+      GestorAlertas.mostrarError(this, "Error al cargar los datos del vehículo");
+      return;
+    }
+
+    mostrarDetallesTanquero(t);
   }
 
   private void mostrarDetallesTanquero(Tanquero t) {
     DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     StringBuilder detalles = new StringBuilder();
 
+    Socio socioAsignado = gestorSocios.obtenerSocioAsignadoATanquero(t.getIdTanquero());
+
+    detalles.append("Vehículo\n");
     detalles.append("Placa:      ").append(t.getPlaca()).append("\n");
     detalles.append("Marca:      ").append(t.getMarca()).append("\n");
     detalles.append("Modelo:     ").append(t.getModelo()).append("\n");
@@ -311,12 +324,20 @@ public class Tanqueros extends JPanel {
     detalles.append("Capacidad:  ").append(t.getCapacidadLitros()).append(" Litros\n");
     detalles.append("Estado:     ").append(t.isEstado() ? "Activo" : "Inactivo").append("\n\n");
 
+    detalles.append("Socio Asignado\n");
+    if (socioAsignado != null) {
+      detalles.append("Socio:      ").append(socioAsignado.getNombreCompleto()).append("\n");
+      detalles.append("Cédula:      ").append(socioAsignado.getCedula()).append("\n\n");
+    } else {
+      detalles.append("Socio: Sin asignar\n\n");
+    }
+
     JTextArea textArea = new JTextArea(detalles.toString());
     textArea.setEditable(false);
     textArea.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 
     JScrollPane scrollPane = new JScrollPane(textArea);
-    scrollPane.setPreferredSize(new Dimension(350, 200));
+    scrollPane.setPreferredSize(new Dimension(400, 300));
 
     JOptionPane.showMessageDialog(
       this,
@@ -358,18 +379,37 @@ public class Tanqueros extends JPanel {
     int fila = tabla.getSelectedRow();
     String placaPreseleccionada = (fila >= 0) ? (String) modelo.getValueAt(fila, 0) : "";
 
-    JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
+    if (fila < 0) {
+      GestorAlertas.mostrarAdvertencia(this, "Seleccione un vehículo de la tabla");
+      return;
+    }
+
+    JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
     panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
     JLabel lblPlaca = new JLabel("Placa Tanquero:");
     JTextField txtPlaca = new JTextField(placaPreseleccionada);
 
+    // Verificar si ya tiene socio asignado
+    int idTanquero = gestorTanqueros.obtenerIdPorPlaca(placaPreseleccionada);
+    Socio socioActual = null;
+    if (idTanquero != -1) {
+      socioActual = gestorSocios.obtenerSocioAsignadoATanquero(idTanquero);
+    }
+
+    JLabel lblSocioActual = new JLabel("Socio Actual:");
+    JLabel lblResultadoActual = new JLabel(
+      socioActual != null ?
+        socioActual.getNombres() + " " + socioActual.getApellidos() :
+        "Sin asignar"
+    );
+    lblResultadoActual.setForeground(socioActual != null ? new Color(40, 167, 69) : Color.GRAY);
+
     JLabel lblCedula = new JLabel("Cédula Socio:");
     JTextField txtCedula = new JTextField();
-    txtCedula.setPreferredSize(new Dimension(150, 20));
 
     JLabel lblNombre = new JLabel("Nombre Socio:");
-    JLabel lblResultadoNombre = new JLabel("----------------------------------------------------------------------");
+    JLabel lblResultadoNombre = new JLabel("---------------------------------------------");
     lblResultadoNombre.setForeground(Color.GRAY);
 
     JLabel lblFecha = new JLabel("Fecha Asignación:");
@@ -385,17 +425,17 @@ public class Tanqueros extends JPanel {
 
     panel.add(lblPlaca);
     panel.add(txtPlaca);
-
+    panel.add(lblSocioActual);
+    panel.add(lblResultadoActual);
     panel.add(lblCedula);
     panel.add(panelBusqueda);
-
     panel.add(lblNombre);
     panel.add(lblResultadoNombre);
-
     panel.add(lblFecha);
     panel.add(txtFecha);
 
-    // Lógica del botón buscar
+    final int[] idSocioEncontrado = {-1};
+
     btnBuscar.addActionListener(e -> {
       String cedula = txtCedula.getText().trim();
       if (!cedula.isEmpty()) {
@@ -403,36 +443,107 @@ public class Tanqueros extends JPanel {
         if (s != null) {
           lblResultadoNombre.setText(s.getNombres() + " " + s.getApellidos());
           lblResultadoNombre.setForeground(new Color(40, 167, 69));
+          idSocioEncontrado[0] = s.getIdSocio();
         } else {
           lblResultadoNombre.setText("No encontrado");
           lblResultadoNombre.setForeground(Color.RED);
+          idSocioEncontrado[0] = -1;
         }
       }
     });
 
-    int res = JOptionPane.showConfirmDialog(
+    Object[] opciones = socioActual != null ?
+      new Object[]{"Asignar", "Desasignar", "Cancelar"} :
+      new Object[]{"Asignar", "Cancelar"};
+
+    int res = JOptionPane.showOptionDialog(
       this,
       panel,
-      "Asignar Socio a Vehículo",
-      JOptionPane.OK_CANCEL_OPTION,
+      "Asignar Socio",
+      JOptionPane.DEFAULT_OPTION,
+      JOptionPane.PLAIN_MESSAGE,
+      null,
+      opciones,
+      opciones[0]
+    );
+
+    String placa = txtPlaca.getText().trim().toUpperCase();
+    int idTanqueroFinal = gestorTanqueros.obtenerIdPorPlaca(placa);
+
+    if (!gestorTanqueros.existePlaca(placa)) {
+      GestorAlertas.mostrarError(this, "La placa ingresada no existe");
+      return;
+    }
+
+    if (res == 0) {
+      String nombreSocio = lblResultadoNombre.getText();
+
+      if (idSocioEncontrado[0] == -1 || nombreSocio.equals("---------------------------------------------admin") || nombreSocio.equals("No encontrado")) {
+        GestorAlertas.mostrarError(this, "Buscar y seleccionar un socio válido");
+        return;
+      }
+
+      if (gestorTanqueros.asignarChofer(idTanqueroFinal, idSocioEncontrado[0])) {
+        GestorAlertas.mostrarExito(this, "Socio asignado exitosamente");
+        cargarDatosBD();
+      } else {
+        GestorAlertas.mostrarError(this, "Error al asignar el socio");
+      }
+
+    } else if (res == 1 && socioActual != null) {
+      int confirmacion = JOptionPane.showConfirmDialog(
+        this,
+        "¿Desasignar el socio " + socioActual.getNombreCompleto() + " del vehículo " + placa + " ?",
+        "Confirmar Desasignación",
+        JOptionPane.YES_NO_OPTION,
+        JOptionPane.PLAIN_MESSAGE
+      );
+
+      if (confirmacion == JOptionPane.YES_OPTION) {
+        if (gestorTanqueros.desasignarChofer(idTanqueroFinal)) {
+          GestorAlertas.mostrarExito(this, "Socio desasignado exitosamente");
+          cargarDatosBD();
+        } else {
+          GestorAlertas.mostrarError(this, "Error al desasignar el socio");
+        }
+      }
+    }
+  }
+
+  private void cambiarEstado() {
+    int fila = tabla.getSelectedRow();
+    if (fila < 0) {
+      GestorAlertas.mostrarAdvertencia(this, "Seleccione un vehículo de la tabla");
+      return;
+    }
+
+    String placa = (String) modelo.getValueAt(fila, 0);
+    String estadoActual = (String) modelo.getValueAt(fila, 5);
+
+    Tanquero t = gestorTanqueros.buscarPorPlaca(placa);
+    if (t == null) {
+      GestorAlertas.mostrarError(this, "Error al cargar los datos del vehículo");
+      return;
+    }
+
+    boolean nuevoEstado = estadoActual.equals("Inactivo");
+    String accion = nuevoEstado ? "activar" : "desactivar";
+
+    int confirmacion = JOptionPane.showConfirmDialog(
+      this,
+      "¿Está seguro de " + accion + " el vehículo " + placa + "?",
+      "Cambiar Estado",
+      JOptionPane.YES_NO_OPTION,
       JOptionPane.PLAIN_MESSAGE
     );
 
-    if (res == JOptionPane.OK_OPTION) {
-      String placa = txtPlaca.getText().trim().toUpperCase();
-      String nombreSocio = lblResultadoNombre.getText();
-
-      if (!gestorTanqueros.existePlaca(placa)) {
-        GestorAlertas.mostrarError(this, "La placa ingresada no existe");
-        return;
+    if (confirmacion == JOptionPane.YES_OPTION) {
+      if (gestorTanqueros.cambiarEstado(t.getIdTanquero(), nuevoEstado)) {
+        GestorAlertas.mostrarExito(this, "Estado actualizado exitosamente");
+        cargarDatosBD();
+      } else {
+        GestorAlertas.mostrarError(this, "Error al cambiar el estado");
       }
-      if (nombreSocio.equals("----------------------------------------------------------------------") || nombreSocio.equals("No encontrado")) {
-        GestorAlertas.mostrarError(this, "Debe buscar y seleccionar un socio válido");
-        return;
-      }
-
-      GestorAlertas.mostrarExito(this, "Asignación realizada con éxito");
-      GestorAlertas.mostrarExito(this, placa + " -- " + nombreSocio);
     }
   }
 

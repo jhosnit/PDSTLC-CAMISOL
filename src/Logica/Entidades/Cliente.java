@@ -9,16 +9,14 @@ public class Cliente {
   private String correo;
   private boolean estado;
 
-  // Constructor vacío
-  public Cliente() {}
+  public Cliente() {
+  }
 
-  // Constructor con datos básicos
   public Cliente(String ruc, String razonSocial) {
     this.ruc = ruc;
     this.razonSocial = razonSocial;
   }
 
-  // Getters y Setters
   public int getIdCliente() {
     return idCliente;
   }

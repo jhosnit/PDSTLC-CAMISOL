@@ -2,6 +2,7 @@ package Logica.Gestores;
 
 import Logica.Conexión.ConexionBD;
 import Logica.Entidades.Socio;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -205,20 +206,25 @@ public class GestorSocios {
     return socio;
   }
 
-  public int contarSociosActivos() {
-    String sql = "SELECT COUNT(*) as total FROM socios WHERE estado = true";
+  public Socio obtenerSocioAsignadoATanquero(int idTanquero) {
+    String sql = "SELECT s.* FROM socios s " +
+      "INNER JOIN tanqueros t ON s.id_socio = t.id_socio " +
+      "WHERE t.id_tanquero = ?";
+
     try (Connection conn = ConexionBD.conectar();
-         Statement stmt = conn.createStatement();
-         ResultSet rs = stmt.executeQuery(sql)) {
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+      pstmt.setInt(1, idTanquero);
+      ResultSet rs = pstmt.executeQuery();
 
       if (rs.next()) {
-        return rs.getInt("total");
+        return mapearSocio(rs);
       }
     } catch (SQLException e) {
+      System.err.println("Error al obtener socio asignado: " + e.getMessage());
       e.printStackTrace();
     }
-    return 0;
+    return null;
   }
-
 
 }

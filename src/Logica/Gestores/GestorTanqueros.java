@@ -2,6 +2,7 @@ package Logica.Gestores;
 
 import Logica.Conexión.ConexionBD;
 import Logica.Entidades.Tanquero;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +67,6 @@ public class GestorTanqueros {
   }
 
   public boolean actualizarTanquero(Tanquero tanquero) {
-    // No actualizamos PLACA, es llave de negocio
     String sql = "UPDATE tanqueros SET marca=?, modelo=?, anio_fabricacion=?, capacidad_litros=?, " +
       "fecha_modificacion=CURRENT_TIMESTAMP WHERE id_tanquero=?";
 
@@ -165,5 +165,34 @@ public class GestorTanqueros {
     return (t != null) ? t.getIdTanquero() : -1;
   }
 
+  public boolean asignarChofer(int idTanquero, int idSocio) {
+    String sql = "UPDATE tanqueros SET id_socio = ? WHERE id_tanquero = ?";
+    try (Connection conn = ConexionBD.conectar();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+      pstmt.setInt(1, idSocio);
+      pstmt.setInt(2, idTanquero);
+      return pstmt.executeUpdate() > 0;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+
+  public boolean desasignarChofer(int idTanquero) {
+    String sql = "UPDATE tanqueros SET id_socio = NULL, fecha_modificacion = CURRENT_TIMESTAMP " +
+      "WHERE id_tanquero = ?";
+
+    try (Connection conn = ConexionBD.conectar();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+      pstmt.setInt(1, idTanquero);
+      return pstmt.executeUpdate() > 0;
+
+    } catch (SQLException e) {
+      System.err.println("Error al desasignar chofer: " + e.getMessage());
+      e.printStackTrace();
+      return false;
+    }
+  }
 
 }

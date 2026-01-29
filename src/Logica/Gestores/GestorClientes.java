@@ -2,13 +2,11 @@ package Logica.Gestores;
 
 import Logica.Conexión.ConexionBD;
 import Logica.Entidades.Cliente;
+
 import java.sql.*;
 
 public class GestorClientes {
 
-  /**
-   * Obtiene el cliente por defecto ECUAJUGOS
-   */
   public Cliente obtenerClientePorDefecto() {
     String sql = "SELECT * FROM clientes WHERE ruc = '0990318735001' LIMIT 1";
 
@@ -26,9 +24,6 @@ public class GestorClientes {
     return null;
   }
 
-  /**
-   * Busca un cliente por su ID
-   */
   public Cliente buscarPorId(int idCliente) {
     String sql = "SELECT * FROM clientes WHERE id_cliente = ?";
 
@@ -47,9 +42,6 @@ public class GestorClientes {
     return null;
   }
 
-  /**
-   * Mapea un ResultSet a un objeto Cliente
-   */
   private Cliente mapearCliente(ResultSet rs) throws SQLException {
     Cliente c = new Cliente();
     c.setIdCliente(rs.getInt("id_cliente"));
