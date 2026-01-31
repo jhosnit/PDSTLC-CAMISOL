@@ -354,7 +354,6 @@ public class Tanqueros extends JPanel {
       return;
     }
 
-
     int idTanquero = gestorTanqueros.obtenerIdPorPlaca((String) modelo.getValueAt(fila, 0));
     String placa = (String) modelo.getValueAt(fila, 0);
 

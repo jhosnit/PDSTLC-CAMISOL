@@ -252,7 +252,7 @@ public class Administración extends JPanel {
       }
 
       if (gestorUsuarios.cambiarContraseña(nombreUsuario, nuevaContrasena)) {
-        GestorAlertas.mostrarExito(this, "Contraseña actualizada correctamente");
+        GestorAlertas.mostrarExito(this, "Contraseña actualizada exitosamente");
       } else {
         GestorAlertas.mostrarError(this, "Error al actualizar la contraseña");
       }
@@ -283,7 +283,7 @@ public class Administración extends JPanel {
 
     if (confirmacion == JOptionPane.YES_OPTION) {
       if (gestorUsuarios.cambiarEstadoUsuario(idUsuario, nuevoEstado)) {
-        GestorAlertas.mostrarExito(this, "Estado actualizado correctamente");
+        GestorAlertas.mostrarExito(this, "Estado actualizado exitosamente");
         cargarUsuarios();
       } else {
         GestorAlertas.mostrarError(this, "Error al actualizar el estado");
@@ -347,7 +347,7 @@ public class Administración extends JPanel {
         }
 
       } catch (NumberFormatException e) {
-        GestorAlertas.mostrarError(this, "Valor inválido. Ingrese un número válido.");
+        GestorAlertas.mostrarError(this, "Valor inválido");
       }
     }
   }
