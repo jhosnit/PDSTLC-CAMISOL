@@ -15,6 +15,7 @@ import java.awt.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Transportes extends JPanel {
@@ -70,7 +71,7 @@ public class Transportes extends JPanel {
     add(panelBotones, BorderLayout.NORTH);
 
     String[] columnas = {
-      "Fecha", "Tanquero", "Socio", "Cliente", "Destino", "Litros", "Ocupación", "Flete ($)", "Estado"
+      "Fecha del viaje", "Tanquero", "Socio", "Cliente", "Ruta destino", "Litros", "Ocupación", "Flete ($)", "Estado"
     };
 
     modeloTabla = new DefaultTableModel(columnas, 0) {
@@ -237,7 +238,7 @@ public class Transportes extends JPanel {
     int res = JOptionPane.showConfirmDialog(
       this,
       panel,
-      "Registrar Nuevo Viaje",
+      "Registrar Viaje",
       JOptionPane.OK_CANCEL_OPTION,
       JOptionPane.PLAIN_MESSAGE
     );
@@ -401,14 +402,166 @@ public class Transportes extends JPanel {
   }
 
   private void consultarViaje() {
-    int fila = tablaViajes.getSelectedRow();
-    if (fila < 0) {
-      GestorAlertas.mostrarAdvertencia(this, "Seleccione un viaje de la tabla");
-      return;
+        // Crear un diálogo con opciones de filtro - IGUAL QUE EN SOCIOS
+        JPanel panelFiltro = new JPanel(new GridLayout(3, 2, 10, 10));
+        panelFiltro.setBorder(new EmptyBorder(10, 10, 10, 10));
+        
+        // Campo para seleccionar criterio de búsqueda
+        JLabel lblCriterio = new JLabel("Buscar por:");
+        String[] criterios = {"Fecha del viaje", "Tanquero", "Socio", "Ruta destino", "Estado"};
+        JComboBox<String> comboCriterio = new JComboBox<>(criterios);
+        
+        // Campo para ingresar el valor a buscar
+        JLabel lblValor = new JLabel("Valor:");
+        JTextField txtValor = new JTextField();
+        
+        panelFiltro.add(lblCriterio);
+        panelFiltro.add(comboCriterio);
+        panelFiltro.add(lblValor);
+        panelFiltro.add(txtValor);
+        
+        int resultado = JOptionPane.showConfirmDialog(
+                this,
+                panelFiltro,
+                "Buscar Viajes - Filtros",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE
+        );
+        
+        if (resultado == JOptionPane.OK_OPTION) {
+            String criterio = (String) comboCriterio.getSelectedItem();
+            String valor = txtValor.getText().trim();
+            
+            if (valor.isEmpty()) {
+                // Si no hay valor, mostrar todos los viajes
+                mostrarTodosViajes();
+                return;
+            }
+            
+            List<Transporte> resultados = buscarViajesPorCriterio(criterio, valor);
+            
+            if (resultados.isEmpty()) {
+                GestorAlertas.mostrarInfo(this, "No se encontraron viajes con esos criterios");
+            } else if (resultados.size() == 1) {
+                // Si solo hay un resultado, mostrar directamente sus detalles
+                mostrarDetallesViaje(resultados.get(0));
+            } else {
+                // Si hay múltiples resultados, mostrar lista para seleccionar
+                mostrarResultadosBusquedaViajes(resultados);
+            }
+        }
     }
-    Transporte viaje = listaViajes.get(fila);
-    mostrarDetallesViaje(viaje);
-  }
+
+    private List<Transporte> buscarViajesPorCriterio(String criterio, String valor) {
+        List<Transporte> todosViajes = gestorTransporte.listarViajes();
+        List<Transporte> resultados = new ArrayList<>();
+
+        String valorBusqueda = valor.toLowerCase();
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        for (Transporte viaje : todosViajes) {
+            boolean coincide = false;
+
+            switch (criterio) {
+                case "Fecha del viaje":
+                    String fechaStr = viaje.getFechaAsignacion().format(fmt);
+                    coincide = fechaStr.toLowerCase().contains(valorBusqueda);
+                    break;
+                case "Tanquero":
+                    coincide = viaje.getTanquero().getPlaca().toLowerCase().contains(valorBusqueda);
+                    break;
+                case "Socio":
+                    String nombreSocio = viaje.getSocio().getNombres() + " " + viaje.getSocio().getApellidos();
+                    coincide = nombreSocio.toLowerCase().contains(valorBusqueda);
+                    break;
+                case "Ruta destino":
+                    coincide = viaje.getRutaDestino().toLowerCase().contains(valorBusqueda);
+                    break;
+                case "Estado":
+                    coincide = viaje.getEstadoViaje().toLowerCase().contains(valorBusqueda);
+                    break;
+            }
+
+            if (coincide) {
+                resultados.add(viaje);
+            }
+        }
+
+        return resultados;
+    }
+
+    private void mostrarTodosViajes() {
+        StringBuilder mensaje = new StringBuilder();
+        mensaje.append("=== LISTADO COMPLETO DE VIAJES ===\n\n");
+        
+        List<Transporte> viajes = gestorTransporte.listarViajes();
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        
+        for (Transporte viaje : viajes) {
+            mensaje.append("Fecha del viaje: ").append(viaje.getFechaAsignacion().format(fmt)).append("\n");
+            mensaje.append("Tanquero: ").append(viaje.getTanquero().getPlaca()).append("\n");
+            mensaje.append("Socio: ").append(viaje.getSocio().getNombres()).append(" ")
+                   .append(viaje.getSocio().getApellidos()).append("\n");
+            mensaje.append("Ruta destino: ").append(viaje.getRutaDestino()).append("\n");
+            mensaje.append("Litros: ").append(String.format("%.2f", viaje.getLitrosTransportados())).append(" L\n");
+            mensaje.append("Ocupación: ").append(String.format("%.1f", viaje.getPorcentajeOcupacion())).append("%\n");
+            mensaje.append("Flete: $ ").append(String.format("%.2f", viaje.getValorFlete())).append("\n");
+            mensaje.append("Estado: ").append(viaje.getEstadoViaje()).append("\n");
+            mensaje.append("-----------------------------------\n");
+        }
+        
+        mensaje.append("\nTotal de viajes: ").append(viajes.size());
+        
+        JTextArea textArea = new JTextArea(mensaje.toString());
+        textArea.setEditable(false);
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new Dimension(500, 400));
+        
+        JOptionPane.showMessageDialog(
+                this,
+                scrollPane,
+                "Listado de Viajes",
+                JOptionPane.PLAIN_MESSAGE
+        );
+    }
+
+    private void mostrarResultadosBusquedaViajes(List<Transporte> resultados) {
+        String[] opciones = new String[resultados.size()];
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        
+        for (int i = 0; i < resultados.size(); i++) {
+            Transporte viaje = resultados.get(i);
+            opciones[i] = viaje.getFechaAsignacion().format(fmt) + " - " +
+                         viaje.getTanquero().getPlaca() + " - " +
+                         viaje.getRutaDestino() + " - " +
+                         viaje.getSocio().getNombres();
+        }
+
+        String seleccion = (String) JOptionPane.showInputDialog(
+                this,
+                "Se encontraron " + resultados.size() + " resultados. Seleccione uno:",
+                "Resultados de Búsqueda",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                opciones,
+                opciones[0]
+        );
+
+        if (seleccion != null) {
+            for (Transporte viaje : resultados) {
+                String opcion = viaje.getFechaAsignacion().format(fmt) + " - " +
+                              viaje.getTanquero().getPlaca() + " - " +
+                              viaje.getRutaDestino() + " - " +
+                              viaje.getSocio().getNombres();
+                if (opcion.equals(seleccion)) {
+                    mostrarDetallesViaje(viaje);
+                    break;
+                }
+            }
+        }
+    }
 
   private void mostrarDetallesViaje(Transporte viaje) {
     DateTimeFormatter fmtFecha = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -444,7 +597,7 @@ public class Transportes extends JPanel {
 
     detalles.append("RUTA Y CARGA\n");
     detalles.append("Origen:         ").append(viaje.getRutaOrigen()).append("\n");
-    detalles.append("Destino:        ").append(viaje.getRutaDestino()).append("\n");
+    detalles.append("Ruta destino:        ").append(viaje.getRutaDestino()).append("\n");
     detalles.append("Distancia:      ").append(String.format("%.2f", viaje.getKilometros())).append(" Km\n");
     detalles.append("Litros:         ").append(String.format("%.2f", viaje.getLitrosTransportados())).append(" L\n");
     detalles.append("Ocupación:      ").append(String.format("%.1f", viaje.getPorcentajeOcupacion())).append(" %\n");

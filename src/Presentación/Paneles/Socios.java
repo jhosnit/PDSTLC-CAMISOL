@@ -12,7 +12,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.*;
 import java.awt.*;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Socios extends JPanel {
@@ -83,7 +83,7 @@ public class Socios extends JPanel {
 
   private void crearTabla() {
     String[] columnas = {
-      "Cédula", "Nombres", "Apellidos", "Teléfono", "Correo", "Dirección", "Estado"
+      "Cédula de Identidad ", "Nombres", "Apellidos", "Teléfono móvil", "Correo Electrónico", "Dirección Domiciliaria", "Estado"
     };
 
     modeloTabla = new DefaultTableModel(columnas, 0) {
@@ -144,7 +144,7 @@ public class Socios extends JPanel {
     JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
     panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-    JLabel lblCedula = new JLabel("Cédula:");
+    JLabel lblCedula = new JLabel("Cédula de Identidad :");
     JTextField txtCedula = new JTextField();
 
     JLabel lblNombres = new JLabel("Nombres:");
@@ -153,13 +153,13 @@ public class Socios extends JPanel {
     JLabel lblApellidos = new JLabel("Apellidos:");
     JTextField txtApellidos = new JTextField();
 
-    JLabel lblTelefono = new JLabel("Teléfono:");
+    JLabel lblTelefono = new JLabel("Teléfono móvil:");
     JTextField txtTelefono = new JTextField();
 
     JLabel lblCorreo = new JLabel("Correo Electrónico:");
     JTextField txtCorreo = new JTextField();
 
-    JLabel lblDireccion = new JLabel("Dirección:");
+    JLabel lblDireccion = new JLabel("Dirección Domiciliaria:");
     JTextField txtDireccion = new JTextField();
 
     panel.add(lblCedula);
@@ -175,15 +175,17 @@ public class Socios extends JPanel {
     panel.add(lblDireccion);
     panel.add(txtDireccion);
 
-    int resultado = JOptionPane.showConfirmDialog(
-      this,
-      panel,
-      "Registrar Socio",
-      JOptionPane.OK_CANCEL_OPTION,
-      JOptionPane.PLAIN_MESSAGE
-    );
+    int res = JOptionPane.showConfirmDialog(
+    this,
+    panel,
+    "Registrar Socio",
+    JOptionPane.DEFAULT_OPTION,
+    JOptionPane.PLAIN_MESSAGE,
+    null
+);
 
-    if (resultado == JOptionPane.OK_OPTION) {
+
+    if (res == JOptionPane.OK_OPTION) {
       String cedula = txtCedula.getText().trim();
       String nombres = txtNombres.getText().trim();
       String apellidos = txtApellidos.getText().trim();
@@ -199,17 +201,17 @@ public class Socios extends JPanel {
       }
 
       if (!Validaciones.validarCédula(cedula)) {
-        GestorAlertas.mostrarError(this, "Cédula inválida");
+        GestorAlertas.mostrarError(this, "Cédula de Identidad inválida");
         return;
       }
 
       if (gestorSocios.existeCedula(cedula)) {
-        GestorAlertas.mostrarError(this, "Cédula ya está registrada en el sistema");
+        GestorAlertas.mostrarError(this, "Cédula de Identidad ya está registrada en el sistema");
         return;
       }
 
       if (!Validaciones.validarTelefono(telefono)) {
-        GestorAlertas.mostrarError(this, "Teléfono inválido");
+        GestorAlertas.mostrarError(this, "Teléfono móvil inválido");
         return;
       }
 
@@ -249,7 +251,7 @@ public class Socios extends JPanel {
     JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
     panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-    JLabel lblCedula = new JLabel("Cédula:");
+    JLabel lblCedula = new JLabel("Cédula de Identidad :");
     JTextField txtCedula = new JTextField(socio.getCedula());
     txtCedula.setEditable(false);
     txtCedula.setBackground(Color.LIGHT_GRAY);
@@ -264,13 +266,13 @@ public class Socios extends JPanel {
     txtApellidos.setEditable(false);
     txtApellidos.setBackground(Color.LIGHT_GRAY);
 
-    JLabel lblTelefono = new JLabel("Teléfono:");
+    JLabel lblTelefono = new JLabel("Teléfono móvil:");
     JTextField txtTelefono = new JTextField(socio.getTelefono());
 
-    JLabel lblCorreo = new JLabel("Correo:");
+    JLabel lblCorreo = new JLabel("Correo Electrónico:");
     JTextField txtCorreo = new JTextField(socio.getCorreo());
 
-    JLabel lblDireccion = new JLabel("Dirección:");
+    JLabel lblDireccion = new JLabel("Dirección Domiciliaria:");
     JTextField txtDireccion = new JTextField(socio.getDireccion());
 
     panel.add(lblCedula);
@@ -286,8 +288,19 @@ public class Socios extends JPanel {
     panel.add(lblDireccion);
     panel.add(txtDireccion);
 
-    int resultado = JOptionPane.showConfirmDialog(this, panel,
-      "Actualizar Datos", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+Object[] opciones = {"Actualizar", "Cancelar"};
+
+int resultado = JOptionPane.showOptionDialog(
+    this,
+    panel,
+    "Actualizar Datos",
+    JOptionPane.DEFAULT_OPTION,
+    JOptionPane.PLAIN_MESSAGE,
+    null,
+    opciones,
+    opciones[0]
+);
+
 
     if (resultado == JOptionPane.OK_OPTION) {
       String telefono = txtTelefono.getText().trim();
@@ -300,7 +313,7 @@ public class Socios extends JPanel {
       }
 
       if (!Validaciones.validarTelefono(telefono)) {
-        GestorAlertas.mostrarError(this, "Teléfono inválido");
+        GestorAlertas.mostrarError(this, "Teléfono móvil inválido");
         return;
       }
 
@@ -323,35 +336,111 @@ public class Socios extends JPanel {
   }
 
   private void consultarSocio() {
-    int fila = tablaSocios.getSelectedRow();
+    // Crear un diálogo con opciones de filtro
+    JPanel panelFiltro = new JPanel(new GridLayout(3, 2, 10, 10));
+    panelFiltro.setBorder(new EmptyBorder(10, 10, 10, 10));
+    
+    // Campo para seleccionar criterio de búsqueda
+    JLabel lblCriterio = new JLabel("Buscar por:");
+    String[] criterios = {"Cédula de Identidad ", "Nombres", "Apellidos", "Teléfono móvil", "Estado"};
+    JComboBox<String> comboCriterio = new JComboBox<>(criterios);
+    
+    // Campo para ingresar el valor a buscar
+    JLabel lblValor = new JLabel("Valor:");
+    JTextField txtValor = new JTextField();
+    
+    panelFiltro.add(lblCriterio);
+    panelFiltro.add(comboCriterio);
+    panelFiltro.add(lblValor);
+    panelFiltro.add(txtValor);
+    
+    int resultado = JOptionPane.showConfirmDialog(
+        this,
+        panelFiltro,
+        "Buscar Socios - Filtros",
+        JOptionPane.OK_CANCEL_OPTION,
+        JOptionPane.PLAIN_MESSAGE
+    );
+    
+    if (resultado == JOptionPane.OK_OPTION) {
+        String criterio = (String) comboCriterio.getSelectedItem();
+        String valor = txtValor.getText().trim();
+        
+        if (valor.isEmpty()) {
+            // Si no hay valor, mostrar todos los socios
+            mostrarTodosSocios();
+            return;
+        }
+        
+        List<Socio> resultados = buscarSociosPorCriterio(criterio, valor);
+        
+        if (resultados.isEmpty()) {
+            GestorAlertas.mostrarInfo(this, "No se encontraron socios con esos criterios");
+        } else if (resultados.size() == 1) {
+            // Si solo hay un resultado, mostrar directamente sus detalles
+            mostrarDetallesSocio(resultados.get(0));
+        } else {
+            // Si hay múltiples resultados, mostrar lista para seleccionar
+            mostrarResultadosBusqueda(resultados);
+        }
+    }
+}
 
-    if (fila < 0) {
-      GestorAlertas.mostrarAdvertencia(this, "Seleccione un socio de la tabla");
-      return;
+private List<Socio> buscarSociosPorCriterio(String criterio, String valor) {
+    List<Socio> todosSocios = gestorSocios.listarSocios();
+    List<Socio> resultados = new ArrayList<>();
+
+    String valorBusqueda = valor.toLowerCase();
+
+    for (Socio socio : todosSocios) {
+        boolean coincide = false;
+
+        switch (criterio) {
+
+            case "Cédula de Identidad ":
+                coincide = socio.getCedula().toLowerCase().contains(valorBusqueda);
+                break;
+
+            case "Nombres":
+                coincide = socio.getNombres().toLowerCase().contains(valorBusqueda);
+                break;
+
+            case "Apellidos":
+                coincide = socio.getApellidos().toLowerCase().contains(valorBusqueda);
+                break;
+
+            case "Teléfono móvil":
+                coincide = socio.getTelefono().toLowerCase().contains(valorBusqueda);
+                break;
+
+            case "Correo Electrónico":
+                coincide = socio.getCorreo().toLowerCase().contains(valorBusqueda);
+                break;
+
+            case "Estado":
+                String estadoSocio = socio.isEstado() ? "activo" : "inactivo";
+                coincide = estadoSocio.contains(valorBusqueda);
+                break;
+        }
+
+        if (coincide) {
+            resultados.add(socio);
+        }
     }
 
-    String cedulaActual = (String) modeloTabla.getValueAt(fila, 0);
-    Socio socio = gestorSocios.buscarPorCedula(cedulaActual);
+    return resultados;
+}
 
-    if (socio == null) {
-      GestorAlertas.mostrarError(this, "Error al cargar los datos del socio");
-      return;
-    }
-
-    mostrarDetallesSocio(socio);
-  }
-
-  private void mostrarDetallesSocio(Socio socio) {
-    DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+ private void mostrarDetallesSocio(Socio socio) {
 
     StringBuilder detalles = new StringBuilder();
     detalles.append("Socio\n");
-    detalles.append("Cédula:      ").append(socio.getCedula()).append("\n");
+    detalles.append("Cédula de Identidad :      ").append(socio.getCedula()).append("\n");
     detalles.append("Nombres:      ").append(socio.getNombres()).append("\n");
     detalles.append("Apellidos:      ").append(socio.getApellidos()).append("\n");
-    detalles.append("Teléfono:      ").append(socio.getTelefono()).append("\n");
-    detalles.append("Correo:      ").append(socio.getCorreo()).append("\n");
-    detalles.append("Dirección:      ").append(socio.getDireccion()).append("\n");
+    detalles.append("Teléfono móvil:      ").append(socio.getTelefono()).append("\n");
+    detalles.append("Correo Electrónico:      ").append(socio.getCorreo()).append("\n");
+    detalles.append("Dirección Domiciliaria:      ").append(socio.getDireccion()).append("\n");
     detalles.append("Estado:      ").append(socio.isEstado() ? "Activo" : "Inactivo");
 
     JTextArea textArea = new JTextArea(detalles.toString());
@@ -368,6 +457,38 @@ public class Socios extends JPanel {
       JOptionPane.PLAIN_MESSAGE
     );
   }
+
+private void mostrarTodosSocios() {
+    StringBuilder mensaje = new StringBuilder();
+    mensaje.append("=== LISTADO COMPLETO DE SOCIOS ===\n\n");
+    
+    List<Socio> socios = gestorSocios.listarSocios();
+        
+    for (Socio socio : socios) {
+        mensaje.append("Cédula de Identidad : ").append(socio.getCedula()).append("\n");
+        mensaje.append("Nombre: ").append(socio.getNombres()).append(" ").append(socio.getApellidos()).append("\n");
+        mensaje.append("Teléfono móvil: ").append(socio.getTelefono()).append("\n");
+        mensaje.append("Correo Electrónico: ").append(socio.getCorreo()).append("\n");
+        mensaje.append("Estado: ").append(socio.isEstado() ? "Activo" : "Inactivo").append("\n");
+        mensaje.append("-----------------------------------\n");
+    }
+    
+    mensaje.append("\nTotal de socios: ").append(socios.size());
+    
+    JTextArea textArea = new JTextArea(mensaje.toString());
+    textArea.setEditable(false);
+    textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+    
+    JScrollPane scrollPane = new JScrollPane(textArea);
+    scrollPane.setPreferredSize(new Dimension(500, 400));
+    
+    JOptionPane.showMessageDialog(
+        this,
+        scrollPane,
+        "Listado de Socios",
+        JOptionPane.PLAIN_MESSAGE
+    );
+}
 
   private void mostrarResultadosBusqueda(List<Socio> resultados) {
     String[] opciones = new String[resultados.size()];

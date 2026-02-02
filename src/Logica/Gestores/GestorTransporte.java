@@ -121,45 +121,6 @@ public class GestorTransporte {
     return lista;
   }
 
-  private Transporte mapearTransporte(ResultSet rs) throws SQLException {
-    Transporte t = new Transporte();
-    t.setIdTransporte(rs.getInt("id_transporte"));
-
-    // Tanquero
-    Tanquero tanquero = new Tanquero();
-    tanquero.setIdTanquero(rs.getInt("id_tanquero"));
-    tanquero.setPlaca(rs.getString("placa"));
-    tanquero.setCapacidadLitros(rs.getDouble("capacidad_litros"));
-    t.setTanquero(tanquero);
-
-    // Socio
-    Socio socio = new Socio();
-    socio.setIdSocio(rs.getInt("id_socio"));
-    socio.setCedula(rs.getString("cedula"));
-    socio.setNombres(rs.getString("nombres"));
-    socio.setApellidos(rs.getString("apellidos"));
-    t.setSocio(socio);
-
-    // Cliente
-    Cliente cliente = new Cliente();
-    cliente.setIdCliente(rs.getInt("id_cliente"));
-    cliente.setRuc(rs.getString("ruc"));
-    cliente.setRazonSocial(rs.getString("razon_social"));
-    t.setCliente(cliente);
-
-    t.setFechaAsignacion(rs.getDate("fecha_asignacion").toLocalDate());
-    t.setHoraAsignacion(rs.getTime("hora_asignacion").toLocalTime());
-    t.setRutaOrigen(rs.getString("ruta_origen"));
-    t.setRutaDestino(rs.getString("ruta_destino"));
-    t.setKilometros(rs.getDouble("kilometros"));
-    t.setLitrosTransportados(rs.getDouble("litros_transportados"));
-    t.setEstadoViaje(rs.getString("estado_viaje"));
-    t.setObservaciones(rs.getString("observaciones"));
-    t.setUsuarioRegistro(rs.getString("usuario_registro"));
-
-    return t;
-  }
-
   public boolean cambiarEstadoViaje(int idTransporte, String nuevoEstado) {
     String sql;
 

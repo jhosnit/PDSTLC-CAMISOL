@@ -18,6 +18,7 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Tanqueros extends JPanel {
@@ -76,7 +77,7 @@ public class Tanqueros extends JPanel {
 
     add(panelBotones, BorderLayout.NORTH);
 
-    String[] columnas = {"Placa", "Marca", "Modelo", "Año", "Capacidad (Litros)", "Estado"};
+    String[] columnas = {"Placa", "Marca", "Modelo", "Año de fabricación", "Capacidad (Litros)", "Estado"};
     modelo = new DefaultTableModel(columnas, 0) {
       @Override
       public boolean isCellEditable(int row, int column) {
@@ -156,7 +157,7 @@ public class Tanqueros extends JPanel {
     JLabel lblModelo = new JLabel("Modelo:");
     JTextField txtModelo = new JTextField();
 
-    JLabel lblAnio = new JLabel("Año:");
+    JLabel lblAnio = new JLabel("Año de fabricación:");
     JTextField txtAnio = new JTextField();
 
     JLabel lblCapacidad = new JLabel("Capacidad (Litros):");
@@ -219,7 +220,7 @@ public class Tanqueros extends JPanel {
           GestorAlertas.mostrarError(this, "Error al guardar");
         }
       } catch (NumberFormatException ex) {
-        GestorAlertas.mostrarError(this, "Año o Capacidad inválidos");
+        GestorAlertas.mostrarError(this, "Año de fabricación o Capacidad inválidos");
       }
     }
   }
@@ -249,7 +250,7 @@ public class Tanqueros extends JPanel {
     JLabel lblModelo = new JLabel("Modelo:");
     JTextField txtModelo = new JTextField(t.getModelo());
 
-    JLabel lblAnio = new JLabel("Año:");
+    JLabel lblAnio = new JLabel("Año de fabricación:");
     JTextField txtAnio = new JTextField(String.valueOf(t.getAnioFabricacion()));
 
     JLabel lblCapacidad = new JLabel("Capacidad:");
@@ -292,26 +293,166 @@ public class Tanqueros extends JPanel {
   }
 
   private void consultarTanquero() {
-    int fila = tabla.getSelectedRow();
+    // Crear un diálogo con opciones de filtro
+    JPanel panelFiltro = new JPanel(new GridLayout(3, 2, 10, 10));
+    panelFiltro.setBorder(new EmptyBorder(10, 10, 10, 10));
+    
+    // Campo para seleccionar criterio de búsqueda
+    JLabel lblCriterio = new JLabel("Buscar por:");
+    String[] criterios = {"Placa", "Marca", "Modelo", "Año de fabricación", "Estado"};
+    JComboBox<String> comboCriterio = new JComboBox<>(criterios);
+    
+    // Campo para ingresar el valor a buscar
+    JLabel lblValor = new JLabel("Valor:");
+    JTextField txtValor = new JTextField();
+    
+    panelFiltro.add(lblCriterio);
+    panelFiltro.add(comboCriterio);
+    panelFiltro.add(lblValor);
+    panelFiltro.add(txtValor);
+    
+    int resultado = JOptionPane.showConfirmDialog(
+        this,
+        panelFiltro,
+        "Buscar Tanqueros - Filtros",
+        JOptionPane.OK_CANCEL_OPTION,
+        JOptionPane.PLAIN_MESSAGE
+    );
+    
+    if (resultado == JOptionPane.OK_OPTION) {
+        String criterio = (String) comboCriterio.getSelectedItem();
+        String valor = txtValor.getText().trim();
+        
+        if (valor.isEmpty()) {
+            // Si no hay valor, mostrar todos los tanqueros
+            mostrarTodosTanqueros();
+            return;
+        }
+        
+        List<Tanquero> resultados = buscarTanquerosPorCriterio(criterio, valor);
+        
+        if (resultados.isEmpty()) {
+            GestorAlertas.mostrarInfo(this, "No se encontraron tanqueros con esos criterios");
+        } else if (resultados.size() == 1) {
+            // Si solo hay un resultado, mostrar directamente sus detalles
+            mostrarDetallesTanquero(resultados.get(0));
+        } else {
+            // Si hay múltiples resultados, mostrar lista para seleccionar
+            mostrarResultadosBusquedaTanqueros(resultados);
+        }
+    }
+}
 
-    if (fila < 0) {
-      GestorAlertas.mostrarAdvertencia(this, "Seleccione un vehículo de la tabla");
-      return;
+private List<Tanquero> buscarTanquerosPorCriterio(String criterio, String valor) {
+    List<Tanquero> todosTanqueros = gestorTanqueros.listarTanqueros();
+    List<Tanquero> resultados = new ArrayList<>();
+
+    String valorBusqueda = valor.toLowerCase();
+
+    for (Tanquero tanquero : todosTanqueros) {
+        boolean coincide = false;
+
+        switch (criterio) {
+            case "Placa":
+                coincide = tanquero.getPlaca().toLowerCase().contains(valorBusqueda);
+                break;
+            case "Marca":
+                coincide = tanquero.getMarca().toLowerCase().contains(valorBusqueda);
+                break;
+            case "Modelo":
+                coincide = tanquero.getModelo().toLowerCase().contains(valorBusqueda);
+                break;
+            case "Año de fabricación":
+                coincide = String.valueOf(tanquero.getAnioFabricacion()).contains(valorBusqueda);
+                break;
+            case "Estado":
+                String estadoTanquero = tanquero.isEstado() ? "activo" : "inactivo";
+                coincide = estadoTanquero.contains(valorBusqueda);
+                break;
+        }
+
+        if (coincide) {
+            resultados.add(tanquero);
+        }
     }
 
-    String placa = (String) modelo.getValueAt(fila, 0);
-    Tanquero t = gestorTanqueros.buscarPorPlaca(placa);
+    return resultados;
+}
 
-    if (t == null) {
-      GestorAlertas.mostrarError(this, "Error al cargar los datos del vehículo");
-      return;
+private void mostrarTodosTanqueros() {
+    StringBuilder mensaje = new StringBuilder();
+    mensaje.append("=== LISTADO COMPLETO DE TANQUEROS ===\n\n");
+    
+    List<Tanquero> tanqueros = gestorTanqueros.listarTanqueros();
+    
+    for (Tanquero tanquero : tanqueros) {
+        mensaje.append("Placa: ").append(tanquero.getPlaca()).append("\n");
+        mensaje.append("Marca: ").append(tanquero.getMarca()).append("\n");
+        mensaje.append("Modelo: ").append(tanquero.getModelo()).append("\n");
+        mensaje.append("Año de fabricación: ").append(tanquero.getAnioFabricacion()).append("\n");
+        mensaje.append("Capacidad: ").append(tanquero.getCapacidadLitros()).append(" litros\n");
+        mensaje.append("Estado: ").append(tanquero.isEstado() ? "Activo" : "Inactivo").append("\n");
+        
+        // Mostrar información del socio asignado
+        Socio socioAsignado = gestorSocios.obtenerSocioAsignadoATanquero(tanquero.getIdTanquero());
+        if (socioAsignado != null) {
+            mensaje.append("Socio Asignado: ").append(socioAsignado.getNombreCompleto())
+                   .append(" (").append(socioAsignado.getCedula()).append(")\n");
+        } else {
+            mensaje.append("Socio Asignado: Sin asignar\n");
+        }
+        mensaje.append("-----------------------------------\n");
+    }
+    
+    mensaje.append("\nTotal de tanqueros: ").append(tanqueros.size());
+    
+    JTextArea textArea = new JTextArea(mensaje.toString());
+    textArea.setEditable(false);
+    textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+    
+    JScrollPane scrollPane = new JScrollPane(textArea);
+    scrollPane.setPreferredSize(new Dimension(500, 400));
+    
+    JOptionPane.showMessageDialog(
+        this,
+        scrollPane,
+        "Listado de Tanqueros",
+        JOptionPane.PLAIN_MESSAGE
+    );
+}
+
+private void mostrarResultadosBusquedaTanqueros(List<Tanquero> resultados) {
+    String[] opciones = new String[resultados.size()];
+    for (int i = 0; i < resultados.size(); i++) {
+        opciones[i] = resultados.get(i).getPlaca() + " - " + 
+                      resultados.get(i).getMarca() + " " + 
+                      resultados.get(i).getModelo();
     }
 
-    mostrarDetallesTanquero(t);
-  }
+    String seleccion = (String) JOptionPane.showInputDialog(
+        this,
+        "Se encontraron " + resultados.size() + " resultados. Seleccione uno:",
+        "Resultados de Búsqueda",
+        JOptionPane.PLAIN_MESSAGE,
+        null,
+        opciones,
+        opciones[0]
+    );
+
+    if (seleccion != null) {
+        for (Tanquero tanquero : resultados) {
+            String opcion = tanquero.getPlaca() + " - " + 
+                           tanquero.getMarca() + " " + 
+                           tanquero.getModelo();
+            if (opcion.equals(seleccion)) {
+                mostrarDetallesTanquero(tanquero);
+                break;
+            }
+        }
+    }
+}
 
   private void mostrarDetallesTanquero(Tanquero t) {
-    DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     StringBuilder detalles = new StringBuilder();
 
     Socio socioAsignado = gestorSocios.obtenerSocioAsignadoATanquero(t.getIdTanquero());
@@ -320,7 +461,7 @@ public class Tanqueros extends JPanel {
     detalles.append("Placa:      ").append(t.getPlaca()).append("\n");
     detalles.append("Marca:      ").append(t.getMarca()).append("\n");
     detalles.append("Modelo:     ").append(t.getModelo()).append("\n");
-    detalles.append("Año:        ").append(t.getAnioFabricacion()).append("\n");
+    detalles.append("Año de fabricación:        ").append(t.getAnioFabricacion()).append("\n");
     detalles.append("Capacidad:  ").append(t.getCapacidadLitros()).append(" Litros\n");
     detalles.append("Estado:     ").append(t.isEstado() ? "Activo" : "Inactivo").append("\n\n");
 
@@ -353,7 +494,6 @@ public class Tanqueros extends JPanel {
       GestorAlertas.mostrarAdvertencia(this, "Seleccione un vehículo de la tabla");
       return;
     }
-
 
     int idTanquero = gestorTanqueros.obtenerIdPorPlaca((String) modelo.getValueAt(fila, 0));
     String placa = (String) modelo.getValueAt(fila, 0);

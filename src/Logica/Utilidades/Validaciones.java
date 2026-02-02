@@ -80,30 +80,48 @@ public class Validaciones {
   }
 
   public static boolean validarTelefono(String telefono) {
-    if (telefono == null || telefono.length() != 10) {
+    if (telefono == null) {
       return false;
     }
 
-    if (!telefono.startsWith("09")) {
+    if (!telefono.matches("\\d+")) {
       return false;
     }
 
-    return telefono.matches("^[0-9]+$");
+    if (telefono.length() == 10) {
+      return telefono.startsWith("09");
+    } else if (telefono.length() == 9) {
+
+      char segundoDigito = telefono.charAt(1);
+      return telefono.startsWith("0") && (segundoDigito >= '2' && segundoDigito <= '7');
+    }
+
+    return false;
   }
 
   public static boolean validarPlaca(String placa) {
+
     if (placa == null) {
       return false;
     }
 
-    // Formato: ABC-1234 o ABC-123 (3 letras, guion, 3 o 4 números)
     if (!placa.matches("^[A-Z]{3}-[0-9]{3,4}$")) {
       return false;
     }
 
     char primeraLetra = placa.charAt(0);
-    String provinciasValidas = "ABCEGHIJKLMNOPQRSTUVWXYZ"; // Lista de códigos de provincias
+    String provinciasValidas = "ABCEGHIJKLMNOPQRSTUVWXYZ";
 
-    return provinciasValidas.indexOf(primeraLetra) != -1;
+    if (provinciasValidas.indexOf(primeraLetra) == -1) {
+      return false;
+    }
+
+    String numeros = placa.split("-")[1];
+    if (numeros.equals("000") || numeros.equals("0000")) {
+      return false;
+    }
+
+    return true;
   }
+
 }

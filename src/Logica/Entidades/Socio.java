@@ -1,12 +1,5 @@
 package Logica.Entidades;
-
-import Logica.Gestores.GestorAlertas;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class Socio {
   private int idSocio;
